@@ -6,6 +6,7 @@ import io.davlac.checkoutsystem.product.service.dto.CreateProductRequest;
 import io.davlac.checkoutsystem.product.service.dto.CreateProductResponse;
 import io.davlac.checkoutsystem.product.service.mapper.ProductMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductService {
@@ -18,6 +19,7 @@ public class ProductService {
         this.productMapper = productMapper;
     }
 
+    @Transactional
     public CreateProductResponse create(CreateProductRequest request) {
         Product product = productMapper.toEntity(request);
         Product productSaved = productRepository.save(product);

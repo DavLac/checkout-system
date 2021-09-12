@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    # save H2 database in /src/test/resources/h2data
+    # file name = database.mv.db
+    url: jdbc:h2:file:./src/test/resources/h2data/database
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update

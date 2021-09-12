@@ -1,0 +1,4 @@
+server:
+  error:
+    # show error message when throwing error
+    include-message: always

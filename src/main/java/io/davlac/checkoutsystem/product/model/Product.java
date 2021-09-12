@@ -1,12 +1,17 @@
 package io.davlac.checkoutsystem.product.model;
 
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.time.Instant;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Product {
 
     @Id
@@ -18,6 +23,9 @@ public class Product {
     private String description;
 
     private double price;
+
+    @LastModifiedDate
+    private Instant lastModifiedDate;
 
     public Long getId() {
         return id;
@@ -49,5 +57,24 @@ public class Product {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public Instant getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Instant lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", lastModifiedDate=" + lastModifiedDate +
+                '}';
     }
 }

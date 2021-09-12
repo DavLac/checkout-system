@@ -1,5 +1,6 @@
 package io.davlac.checkoutsystem.product.controller;
 
+import io.davlac.checkoutsystem.product.service.ProductService;
 import io.davlac.checkoutsystem.product.service.dto.CreateProductRequest;
 import io.davlac.checkoutsystem.product.service.dto.CreateProductResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,6 +23,12 @@ import java.net.URI;
 @Validated
 public class ProductController {
 
+    private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
     @PostMapping
     @Operation(description = "Create a product")
     @ApiResponses(value = {
@@ -32,13 +39,10 @@ public class ProductController {
     public ResponseEntity<CreateProductResponse> create(
             @RequestBody @Valid CreateProductRequest createProductRequest
     ) {
+        CreateProductResponse response = productService.create(createProductRequest);
         return ResponseEntity
-                .created(URI.create("/products/" + 1L))
-                .body(new CreateProductResponse(1L,
-                        createProductRequest.getName(),
-                        createProductRequest.getDescription(),
-                        createProductRequest.getPrice()
-                ));
+                .created(URI.create("/products/" + response.getId()))
+                .body(response);
     }
 
     @DeleteMapping("{id}")

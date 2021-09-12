@@ -1,5 +1,7 @@
 package io.davlac.checkoutsystem.product.service.dto;
 
+import java.time.Instant;
+
 public class CreateProductResponse {
 
     private long id;
@@ -10,12 +12,7 @@ public class CreateProductResponse {
 
     private double price;
 
-    public CreateProductResponse(long id, String name, String description, double price) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-    }
+    private Instant lastModifiedDate;
 
     public long getId() {
         return id;
@@ -47,5 +44,24 @@ public class CreateProductResponse {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public Instant getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Instant lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
+    @Override
+    public String toString() {
+        return "CreateProductResponse{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", lastModifiedDate=" + lastModifiedDate +
+                '}';
     }
 }

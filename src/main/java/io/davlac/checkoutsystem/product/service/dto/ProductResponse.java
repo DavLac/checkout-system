@@ -10,7 +10,7 @@ public class ProductResponse {
 
     private String description;
 
-    private double price;
+    private Double price;
 
     private Instant lastModifiedDate;
 
@@ -38,11 +38,11 @@ public class ProductResponse {
         this.description = description;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 

@@ -8,7 +8,10 @@ import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 
@@ -27,7 +30,10 @@ public class Product {
     @Size(min = 3, max = 100)
     private String description;
 
-    private double price;
+    @NotNull
+    @Positive
+    @Digits(integer = 10, fraction = 2)
+    private Double price;
 
     @LastModifiedDate
     private Instant lastModifiedDate;
@@ -56,11 +62,11 @@ public class Product {
         this.description = description;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 

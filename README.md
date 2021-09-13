@@ -28,6 +28,16 @@ Before connecting to the admin console, fill these informations in the form :
 
 ![db model](/src/main/resources/static/img/database-model.png)
 
+## Endpoints
+
+You can find all checkpoints on swagger url : `http://localhost:8080/swagger-ui/#/`
+
+### Products
+- POST /products
+- GET /products/{id}
+- PATCH /products/{id} (price & description)
+- DELETE /products/{id}
+
 ## Jacoco test coverage
 Command line :
 ```

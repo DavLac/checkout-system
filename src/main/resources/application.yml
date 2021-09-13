@@ -2,6 +2,7 @@ server:
   error:
     # show error message when throwing error
     include-message: always
+    include-binding-errors: always
 
 spring:
   datasource:

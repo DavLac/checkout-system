@@ -4,46 +4,34 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
+import java.util.Objects;
+import java.util.stream.Stream;
 
-@JsonDeserialize(builder = CreateProductRequest.Builder.class)
-public final class CreateProductRequest {
-
-    @NotEmpty
-    @Size(min = 3, max = 30)
-    private final String name;
+@JsonDeserialize(builder = PatchProductRequest.Builder.class)
+public final class PatchProductRequest {
 
     @Size(min = 3, max = 100)
     private final String description;
 
-    @NotNull
     @Positive
     @Digits(integer = 10, fraction = 2)
     private final Double price;
 
-    public CreateProductRequest(CreateProductRequest.Builder builder) {
-        this.name = builder.name;
+    public PatchProductRequest(PatchProductRequest.Builder builder) {
         this.description = builder.description;
         this.price = builder.price;
     }
 
-    public static CreateProductRequest.Builder builder() {
-        return new CreateProductRequest.Builder();
+    public static PatchProductRequest.Builder builder() {
+        return new PatchProductRequest.Builder();
     }
 
     @JsonPOJOBuilder
     public static class Builder {
-        private String name;
         private String description;
         private Double price;
-
-        public Builder withName(String name) {
-            this.name = name;
-            return this;
-        }
 
         public Builder withDescription(String description) {
             this.description = description;
@@ -55,13 +43,14 @@ public final class CreateProductRequest {
             return this;
         }
 
-        public CreateProductRequest build() {
-            return new CreateProductRequest(this);
+        public PatchProductRequest build() {
+            return new PatchProductRequest(this);
         }
     }
 
-    public String getName() {
-        return name;
+    public boolean isEmpty() {
+        return Stream.of(this.price, this.description)
+                .allMatch(Objects::isNull);
     }
 
     public String getDescription() {
@@ -74,9 +63,8 @@ public final class CreateProductRequest {
 
     @Override
     public String toString() {
-        return "CreateProductRequest{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
+        return "PatchProductRequest{" +
+                "description='" + description + '\'' +
                 ", price=" + price +
                 '}';
     }

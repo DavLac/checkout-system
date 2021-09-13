@@ -51,7 +51,6 @@ class ProductControllerIntTest {
     private static final String NAME = "product_name";
     private static final String DESCRIPTION = "description";
     private static final double PRICE = 12.34;
-    private static final Instant LAST_MODIFIED_DATE = Instant.now();
 
     @Autowired
     private MockMvc mockMvc;
@@ -194,6 +193,13 @@ class ProductControllerIntTest {
     }
 
     @Test
+    void deleteById_withNotExistingProduct_shouldThrowNotFound() throws Exception {
+        mockMvc.perform(delete(PRODUCTS_URI + "/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void getById_withExistingProduct_shouldGetProduct() throws Exception {
         Product savedProduct = productRepository.save(product);
 
@@ -209,7 +215,14 @@ class ProductControllerIntTest {
         assertEquals(NAME, response.getName());
         assertEquals(DESCRIPTION, response.getDescription());
         assertEquals(PRICE, response.getPrice());
-        assertEquals(savedProduct.getLastModifiedDate().truncatedTo(ChronoUnit.MICROS),
-                response.getLastModifiedDate().truncatedTo(ChronoUnit.MICROS));
+        assertEquals(savedProduct.getLastModifiedDate().truncatedTo(ChronoUnit.MILLIS),
+                response.getLastModifiedDate().truncatedTo(ChronoUnit.MILLIS));
+    }
+
+    @Test
+    void getById_withNotExistingProduct_shouldThrowNotFound() throws Exception {
+        mockMvc.perform(get(PRODUCTS_URI + "/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }

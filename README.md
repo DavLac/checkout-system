@@ -27,3 +27,15 @@ Before connecting to the admin console, fill these informations in the form :
 ## Database model
 
 ![db model](/src/main/resources/static/img/database-model.png)
+
+## Jacoco test coverage
+Command line :
+```
+mvn clean test
+```
+Jacoco report location :  `target/jacoco`
+
+### Test coverage :
+- Overall : in progress...
+- Unit tests : in progress...
+- Integration tests : in progress...

@@ -2,4 +2,3 @@
 /target
 *.iml
 src/main/resources/h2data
-src/test/resources/h2data

@@ -8,6 +8,8 @@ import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 
 @Entity
@@ -18,8 +20,11 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotEmpty
+    @Size(min = 3, max = 30)
     private String name;
 
+    @Size(min = 3, max = 100)
     private String description;
 
     private double price;

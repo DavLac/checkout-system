@@ -2,7 +2,7 @@ package io.davlac.checkoutsystem.product.service.mapper;
 
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.service.dto.CreateProductRequest;
-import io.davlac.checkoutsystem.product.service.dto.CreateProductResponse;
+import io.davlac.checkoutsystem.product.service.dto.ProductResponse;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 
@@ -14,6 +14,6 @@ public interface ProductMapper {
 
     Product toEntity(CreateProductRequest dto);
 
-    CreateProductResponse toDto(Product entity);
+    ProductResponse toDto(Product entity);
 
 }

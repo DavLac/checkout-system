@@ -2,9 +2,10 @@ package io.davlac.checkoutsystem.integration;
 
 import io.davlac.checkoutsystem.config.JsonUtils;
 import io.davlac.checkoutsystem.product.controller.ProductController;
+import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.repository.ProductRepository;
 import io.davlac.checkoutsystem.product.service.dto.CreateProductRequest;
-import io.davlac.checkoutsystem.product.service.dto.CreateProductResponse;
+import io.davlac.checkoutsystem.product.service.dto.ProductResponse;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +24,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static io.davlac.checkoutsystem.config.JsonUtils.asJsonString;
@@ -31,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -46,6 +51,7 @@ class ProductControllerIntTest {
     private static final String NAME = "product_name";
     private static final String DESCRIPTION = "description";
     private static final double PRICE = 12.34;
+    private static final Instant LAST_MODIFIED_DATE = Instant.now();
 
     @Autowired
     private MockMvc mockMvc;
@@ -56,9 +62,15 @@ class ProductControllerIntTest {
     @Autowired
     private JsonUtils jsonUtils;
 
+    Product product = new Product();
+
     @BeforeEach
     public void setUp() {
         productRepository.deleteAll();
+
+        product.setName(NAME);
+        product.setDescription(DESCRIPTION);
+        product.setPrice(PRICE);
     }
 
     @Test
@@ -77,17 +89,18 @@ class ProductControllerIntTest {
                 .content(asJsonString(createProductRequest)))
                 .andExpect(status().isCreated());
 
-        CreateProductResponse response = (CreateProductResponse) jsonUtils
-                .deserializeResult(resultActions, CreateProductResponse.class);
+        ProductResponse response = (ProductResponse) jsonUtils
+                .deserializeResult(resultActions, ProductResponse.class);
 
         assertTrue(response.getId() > 0);
         assertEquals(NAME, response.getName());
         assertEquals(DESCRIPTION, response.getDescription());
         assertEquals(PRICE, response.getPrice());
+        assertNotNull(response.getLastModifiedDate());
 
         // database assertions
         int productsAfter = productRepository.findAll().size();
-        assertEquals(productsBefore, productsAfter - 1);
+        assertEquals(productsBefore + 1, productsAfter);
         assertEquals(1, productsAfter);
         assertNotNull(productRepository.findById(response.getId()).get());
     }
@@ -165,9 +178,38 @@ class ProductControllerIntTest {
     }
 
     @Test
-    void delete_withExistingProduct_shouldDeleteProduct() throws Exception {
-        mockMvc.perform(delete(PRODUCTS_URI + "/1")
+    void deleteById_withExistingProduct_shouldDeleteProduct() throws Exception {
+        Product savedProduct = productRepository.save(product);
+        int productsBefore = productRepository.findAll().size();
+
+        mockMvc.perform(delete(PRODUCTS_URI + "/" + savedProduct.getId())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+
+        // database assertions
+        int productsAfter = productRepository.findAll().size();
+        assertEquals(productsBefore - 1, productsAfter);
+        assertEquals(0, productsAfter);
+        assertEquals(Optional.empty(), productRepository.findById(savedProduct.getId()));
+    }
+
+    @Test
+    void getById_withExistingProduct_shouldGetProduct() throws Exception {
+        Product savedProduct = productRepository.save(product);
+
+        ResultActions resultActions = mockMvc.perform(
+                get(PRODUCTS_URI + "/" + savedProduct.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        ProductResponse response = (ProductResponse) jsonUtils
+                .deserializeResult(resultActions, ProductResponse.class);
+
+        assertEquals(savedProduct.getId(), response.getId());
+        assertEquals(NAME, response.getName());
+        assertEquals(DESCRIPTION, response.getDescription());
+        assertEquals(PRICE, response.getPrice());
+        assertEquals(savedProduct.getLastModifiedDate().truncatedTo(ChronoUnit.MICROS),
+                response.getLastModifiedDate().truncatedTo(ChronoUnit.MICROS));
     }
 }

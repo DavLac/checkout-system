@@ -2,7 +2,7 @@ package io.davlac.checkoutsystem.product.service.dto;
 
 import java.time.Instant;
 
-public class CreateProductResponse {
+public class ProductResponse {
 
     private long id;
 

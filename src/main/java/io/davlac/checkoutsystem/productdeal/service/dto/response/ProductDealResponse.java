@@ -1,17 +1,19 @@
 package io.davlac.checkoutsystem.productdeal.service.dto.response;
 
+import io.davlac.checkoutsystem.product.service.dto.ProductResponse;
+
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 
 public class ProductDealResponse {
 
     private long id;
 
-    private Long productId;
+    private ProductResponse product;
 
     private DiscountResponse discount;
 
-    private List<BundleResponse> bundles;
+    private Set<BundleResponse> bundles;
 
     private Instant lastModifiedDate;
 
@@ -23,12 +25,12 @@ public class ProductDealResponse {
         this.id = id;
     }
 
-    public Long getProductId() {
-        return productId;
+    public ProductResponse getProduct() {
+        return product;
     }
 
-    public void setProductId(Long productId) {
-        this.productId = productId;
+    public void setProduct(ProductResponse product) {
+        this.product = product;
     }
 
     public DiscountResponse getDiscount() {
@@ -39,11 +41,11 @@ public class ProductDealResponse {
         this.discount = discount;
     }
 
-    public List<BundleResponse> getBundles() {
+    public Set<BundleResponse> getBundles() {
         return bundles;
     }
 
-    public void setBundles(List<BundleResponse> bundles) {
+    public void setBundles(Set<BundleResponse> bundles) {
         this.bundles = bundles;
     }
 
@@ -59,7 +61,7 @@ public class ProductDealResponse {
     public String toString() {
         return "ProductDealResponse{" +
                 "id=" + id +
-                ", productId=" + productId +
+                ", product=" + product +
                 ", discount=" + discount +
                 ", bundles=" + bundles +
                 ", lastModifiedDate=" + lastModifiedDate +

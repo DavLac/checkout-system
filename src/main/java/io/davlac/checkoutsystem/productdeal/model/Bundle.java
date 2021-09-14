@@ -1,10 +1,10 @@
 package io.davlac.checkoutsystem.productdeal.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.davlac.checkoutsystem.product.model.Product;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
@@ -12,16 +12,18 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.time.Instant;
-import java.util.Set;
 
 @Entity
-@Table(name = "PRODUCTDEALS")
+@Table(name = "BUNDLES")
 @EntityListeners(AuditingEntityListener.class)
-public class ProductDeal {
+@JsonIgnoreProperties({"productDeal"})
+public class Bundle {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,12 +33,13 @@ public class ProductDeal {
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "discount_id", referencedColumnName = "id")
-    private Discount discount;
+    @Min(0)
+    @Max(100)
+    private Integer discountPercentage;
 
-    @OneToMany(mappedBy="productDeal")
-    private Set<Bundle> bundles;
+    @ManyToOne
+    @JoinColumn(name = "productdeal_id", nullable = false)
+    private ProductDeal productDeal;
 
     @LastModifiedDate
     private Instant lastModifiedDate;
@@ -57,20 +60,20 @@ public class ProductDeal {
         this.product = product;
     }
 
-    public Discount getDiscount() {
-        return discount;
+    public Integer getDiscountPercentage() {
+        return discountPercentage;
     }
 
-    public void setDiscount(Discount discount) {
-        this.discount = discount;
+    public void setDiscountPercentage(Integer discountPercentage) {
+        this.discountPercentage = discountPercentage;
     }
 
-    public Set<Bundle> getBundles() {
-        return bundles;
+    public ProductDeal getProductDeal() {
+        return productDeal;
     }
 
-    public void setBundles(Set<Bundle> bundles) {
-        this.bundles = bundles;
+    public void setProductDeal(ProductDeal productDeal) {
+        this.productDeal = productDeal;
     }
 
     public Instant getLastModifiedDate() {
@@ -83,11 +86,11 @@ public class ProductDeal {
 
     @Override
     public String toString() {
-        return "ProductDeal{" +
+        return "Bundle{" +
                 "id=" + id +
                 ", product=" + product +
-                ", discount=" + discount +
-                ", bundles=" + bundles +
+                ", discountPercentage=" + discountPercentage +
+                ", productDeal=" + productDeal +
                 ", lastModifiedDate=" + lastModifiedDate +
                 '}';
     }

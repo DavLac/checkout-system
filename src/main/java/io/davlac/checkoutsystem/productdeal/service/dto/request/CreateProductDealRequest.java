@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.util.Set;
 
 @JsonDeserialize(builder = CreateProductDealRequest.Builder.class)
 public final class CreateProductDealRequest {
@@ -15,7 +15,7 @@ public final class CreateProductDealRequest {
 
     private final @Valid DiscountRequest discount;
 
-    private final List<@Valid BundleRequest> bundles;
+    private final Set<@Valid BundleRequest> bundles;
 
     public CreateProductDealRequest(CreateProductDealRequest.Builder builder) {
         this.productId = builder.productId;
@@ -31,7 +31,7 @@ public final class CreateProductDealRequest {
     public static class Builder {
         private Long productId;
         private DiscountRequest discount;
-        private List<BundleRequest> bundles;
+        private Set<BundleRequest> bundles;
 
         public Builder withProductId(Long productId) {
             this.productId = productId;
@@ -43,7 +43,7 @@ public final class CreateProductDealRequest {
             return this;
         }
 
-        public Builder withBundles(List<BundleRequest> bundles) {
+        public Builder withBundles(Set<BundleRequest> bundles) {
             this.bundles = bundles;
             return this;
         }
@@ -61,7 +61,7 @@ public final class CreateProductDealRequest {
         return discount;
     }
 
-    public List<BundleRequest> getBundles() {
+    public Set<BundleRequest> getBundles() {
         return bundles;
     }
 

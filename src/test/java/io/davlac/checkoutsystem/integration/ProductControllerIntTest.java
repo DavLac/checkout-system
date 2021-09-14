@@ -1,12 +1,12 @@
 package io.davlac.checkoutsystem.integration;
 
-import io.davlac.checkoutsystem.config.JsonUtils;
 import io.davlac.checkoutsystem.product.controller.ProductController;
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.repository.ProductRepository;
 import io.davlac.checkoutsystem.product.service.dto.CreateProductRequest;
 import io.davlac.checkoutsystem.product.service.dto.PatchProductRequest;
 import io.davlac.checkoutsystem.product.service.dto.ProductResponse;
+import io.davlac.checkoutsystem.utils.JsonUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,11 +25,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static io.davlac.checkoutsystem.config.JsonUtils.asJsonString;
+import static io.davlac.checkoutsystem.utils.DateUtils.assertInstantsEqualByMilli;
+import static io.davlac.checkoutsystem.utils.JsonUtils.asJsonString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -248,8 +248,7 @@ class ProductControllerIntTest {
         assertEquals(NAME, response.getName());
         assertEquals(DESCRIPTION, response.getDescription());
         assertEquals(PRICE, response.getPrice());
-        assertEquals(savedProduct.getLastModifiedDate().truncatedTo(ChronoUnit.MILLIS),
-                response.getLastModifiedDate().truncatedTo(ChronoUnit.MILLIS));
+        assertInstantsEqualByMilli(savedProduct.getLastModifiedDate(), response.getLastModifiedDate());
     }
 
     @Test
@@ -282,8 +281,7 @@ class ProductControllerIntTest {
         assertEquals(savedProduct.getName(), response.getName());
         assertEquals(request.getDescription(), response.getDescription());
         assertEquals(request.getPrice(), response.getPrice());
-        assertEquals(savedProduct.getLastModifiedDate().truncatedTo(ChronoUnit.MILLIS),
-                response.getLastModifiedDate().truncatedTo(ChronoUnit.MILLIS));
+        assertInstantsEqualByMilli(savedProduct.getLastModifiedDate(), response.getLastModifiedDate());
     }
 
     @Test
@@ -308,8 +306,7 @@ class ProductControllerIntTest {
         assertEquals(savedProduct.getName(), response.getName());
         assertEquals(request.getDescription(), response.getDescription());
         assertEquals(savedProduct.getPrice(), response.getPrice());
-        assertEquals(savedProduct.getLastModifiedDate().truncatedTo(ChronoUnit.MILLIS),
-                response.getLastModifiedDate().truncatedTo(ChronoUnit.MILLIS));
+        assertInstantsEqualByMilli(savedProduct.getLastModifiedDate(), response.getLastModifiedDate());
     }
 
     @Test
@@ -334,8 +331,7 @@ class ProductControllerIntTest {
         assertEquals(savedProduct.getName(), response.getName());
         assertEquals(savedProduct.getDescription(), response.getDescription());
         assertEquals(request.getPrice(), response.getPrice());
-        assertEquals(savedProduct.getLastModifiedDate().truncatedTo(ChronoUnit.MILLIS),
-                response.getLastModifiedDate().truncatedTo(ChronoUnit.MILLIS));
+        assertInstantsEqualByMilli(savedProduct.getLastModifiedDate(), response.getLastModifiedDate());
     }
 
     public static Stream<Arguments> patchProductBadRequestParameters() {

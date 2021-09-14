@@ -25,7 +25,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse create(@NotNull CreateProductRequest request) {
+    public ProductResponse create(@NotNull final CreateProductRequest request) {
         Product product = productMapper.toEntity(request);
         Product productSaved = productRepository.save(product);
         return productMapper.toDto(productSaved);
@@ -44,8 +44,8 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse patchById(final long id, @NotNull PatchProductRequest request) {
-        if(request.isEmpty()) {
+    public ProductResponse patchById(final long id, @NotNull final PatchProductRequest request) {
+        if (request.isEmpty()) {
             throw new BadRequestException("Body is empty");
         }
 
@@ -55,7 +55,7 @@ public class ProductService {
         return productMapper.toDto(productPatched);
     }
 
-    private Product getEntityById(final long id) {
+    public Product getEntityById(final long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
     }

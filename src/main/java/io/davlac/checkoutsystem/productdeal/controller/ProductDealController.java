@@ -1,7 +1,7 @@
 package io.davlac.checkoutsystem.productdeal.controller;
 
+import io.davlac.checkoutsystem.productdeal.service.ProductDealService;
 import io.davlac.checkoutsystem.productdeal.service.dto.request.CreateProductDealRequest;
-import io.davlac.checkoutsystem.productdeal.service.dto.response.DiscountResponse;
 import io.davlac.checkoutsystem.productdeal.service.dto.response.ProductDealResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,12 +15,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.time.Instant;
 
 @RestController
 @RequestMapping(value = "/product-deals")
 @Validated
 public class ProductDealController {
+
+    private final ProductDealService productDealService;
+
+    public ProductDealController(ProductDealService productDealService) {
+        this.productDealService = productDealService;
+    }
 
     @PostMapping
     @Operation(description = "Create a product deal")
@@ -32,17 +37,7 @@ public class ProductDealController {
     public ResponseEntity<ProductDealResponse> create(
             @RequestBody @Valid CreateProductDealRequest request
     ) {
-        ProductDealResponse response = new ProductDealResponse();
-        response.setId(123L);
-        response.setLastModifiedDate(Instant.now());
-        response.setProductId(request.getProductId());
-        DiscountResponse discountResponse = new DiscountResponse();
-        discountResponse.setId(456L);
-        discountResponse.setLastModifiedDate(Instant.now());
-        discountResponse.setDiscountPercentage(request.getDiscount().getDiscountPercentage());
-        discountResponse.setTotalFullPriceItems(request.getDiscount().getTotalFullPriceItems());
-        discountResponse.setTotalDiscountedItems(request.getDiscount().getTotalDiscountedItems());
-        response.setDiscount(discountResponse);
+        ProductDealResponse response = productDealService.create(request);
         return ResponseEntity
                 .created(URI.create("/product-deals/" + response.getId()))
                 .body(response);

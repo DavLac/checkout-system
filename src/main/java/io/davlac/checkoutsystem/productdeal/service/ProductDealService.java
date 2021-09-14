@@ -1,6 +1,8 @@
 package io.davlac.checkoutsystem.productdeal.service;
 
 import io.davlac.checkoutsystem.product.controller.error.BadRequestException;
+import io.davlac.checkoutsystem.product.controller.error.NotFoundException;
+import io.davlac.checkoutsystem.product.service.ProductService;
 import io.davlac.checkoutsystem.productdeal.model.ProductDeal;
 import io.davlac.checkoutsystem.productdeal.repository.ProductDealRepository;
 import io.davlac.checkoutsystem.productdeal.service.dto.request.CreateProductDealRequest;
@@ -17,11 +19,14 @@ public class ProductDealService {
 
     private final ProductDealRepository productDealRepository;
     private final ProductDealMapper productDealMapper;
+    private final ProductService productService;
 
     public ProductDealService(ProductDealRepository productDealRepository,
-                              ProductDealMapper productDealMapper) {
+                              ProductDealMapper productDealMapper,
+                              ProductService productService) {
         this.productDealRepository = productDealRepository;
         this.productDealMapper = productDealMapper;
+        this.productService = productService;
     }
 
     @Transactional
@@ -30,6 +35,13 @@ public class ProductDealService {
         ProductDeal productDeal = productDealMapper.toEntity(request);
         ProductDeal productDealSaved = productDealRepository.save(productDeal);
         return productDealMapper.toDto(productDealSaved);
+    }
+
+    @Transactional
+    public void deleteById(final long id) {
+        ProductDeal productDeal = productDealRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Product deal not found"));
+        productDealRepository.delete(productDeal);
     }
 
     private static void checkProductDealRequest(CreateProductDealRequest request) {
@@ -44,4 +56,6 @@ public class ProductDealService {
             throw new BadRequestException("Product deal cannot have a grouped discount and a bundle in the same time");
         }
     }
+
+
 }

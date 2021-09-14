@@ -1,11 +1,16 @@
 package io.davlac.checkoutsystem.integration;
 
+import io.davlac.checkoutsystem.integration.repository.BundleRepository;
+import io.davlac.checkoutsystem.integration.repository.DiscountRepository;
 import io.davlac.checkoutsystem.integration.request.BundleRequestTest;
 import io.davlac.checkoutsystem.integration.request.CreateProductDealRequestTest;
 import io.davlac.checkoutsystem.integration.request.DiscountRequestTest;
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.repository.ProductRepository;
 import io.davlac.checkoutsystem.productdeal.controller.ProductDealController;
+import io.davlac.checkoutsystem.productdeal.model.Bundle;
+import io.davlac.checkoutsystem.productdeal.model.Discount;
+import io.davlac.checkoutsystem.productdeal.model.ProductDeal;
 import io.davlac.checkoutsystem.productdeal.repository.ProductDealRepository;
 import io.davlac.checkoutsystem.productdeal.service.dto.request.BundleRequest;
 import io.davlac.checkoutsystem.productdeal.service.dto.request.CreateProductDealRequest;
@@ -14,6 +19,7 @@ import io.davlac.checkoutsystem.productdeal.service.dto.response.ProductDealResp
 import io.davlac.checkoutsystem.utils.JsonUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -40,6 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -51,6 +58,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ProductDealControllerIntTest {
 
     private static final String PRODUCT_DEALS_URI = "/product-deals";
+    private static final String GET_PRODUCT_DEALS_URI = "/product-deals/products";
     private static final long PRODUCT_ID = 123L;
     private static final String NAME = "product_name";
     private static final String DESCRIPTION = "description";
@@ -67,6 +75,12 @@ class ProductDealControllerIntTest {
 
     @Autowired
     private ProductDealRepository productDealRepository;
+
+    @Autowired
+    private BundleRepository bundleRepository;
+
+    @Autowired
+    private DiscountRepository discountRepository;
 
     @Autowired
     private ProductRepository productRepository;
@@ -426,5 +440,60 @@ class ProductDealControllerIntTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(req)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deleteById_withExistingProductDeal_shouldDeleteProductDealAndLinkedBundlesAndDiscount() throws Exception {
+        // create a product deal
+        ProductDeal productDeal = new ProductDeal();
+        productDeal.setProduct(savedProduct);
+        Bundle bundle = new Bundle();
+        bundle.setProductDeal(productDeal);
+        bundle.setProduct(savedProduct);
+        bundle.setDiscountPercentage(0);
+        Bundle bundle2 = new Bundle();
+        bundle2.setProductDeal(productDeal);
+        bundle2.setProduct(savedProduct2);
+        bundle2.setDiscountPercentage(0);
+        productDeal.setBundles(Set.of(bundle, bundle2));
+        Discount discount = new Discount();
+        discount.setDiscountPercentage(50);
+        discount.setTotalDiscountedItems(1);
+        discount.setTotalFullPriceItems(1);
+        productDeal.setDiscount(discount);
+        ProductDeal productDealSaved = productDealRepository.save(productDeal);
+
+        int dealsBefore = productDealRepository.findAll().size();
+        int discountsBefore = discountRepository.findAll().size();
+        int bundlesBefore = bundleRepository.findAll().size();
+
+        mockMvc.perform(delete(PRODUCT_DEALS_URI + "/" + productDealSaved.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        // database assertions
+        // deals
+        int dealsAfter = productDealRepository.findAll().size();
+        assertEquals(dealsBefore - 1, dealsAfter);
+        assertEquals(0, dealsAfter);
+        assertEquals(Optional.empty(), productDealRepository.findById(productDealSaved.getId()));
+
+        // discounts
+        int discountsAfter = discountRepository.findAll().size();
+        assertEquals(discountsBefore - 1, discountsAfter);
+        assertEquals(0, discountsAfter);
+        assertEquals(Optional.empty(), discountRepository.findById(productDealSaved.getDiscount().getId()));
+
+        // bundles
+        int bundlesAfter = bundleRepository.findAll().size();
+        assertEquals(bundlesBefore - 2, bundlesAfter);
+        assertEquals(0, bundlesAfter);
+    }
+
+    @Test
+    void deleteById_withNotExistingProductDeal_shouldThrowNotFound() throws Exception {
+        mockMvc.perform(delete(PRODUCT_DEALS_URI + "/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }

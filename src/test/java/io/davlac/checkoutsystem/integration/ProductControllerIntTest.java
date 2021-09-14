@@ -102,7 +102,7 @@ class ProductControllerIntTest {
         ProductResponse response = (ProductResponse) jsonUtils
                 .deserializeResult(resultActions, ProductResponse.class);
 
-        assertTrue(response.getId() > 0);
+        assertNotNull(response.getId());
         assertEquals(NAME, response.getName());
         assertEquals(DESCRIPTION, response.getDescription());
         assertEquals(PRICE, response.getPrice());

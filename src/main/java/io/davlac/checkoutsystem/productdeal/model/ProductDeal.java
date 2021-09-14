@@ -35,7 +35,7 @@ public class ProductDeal {
     @JoinColumn(name = "discount_id", referencedColumnName = "id")
     private Discount discount;
 
-    @OneToMany(mappedBy="productDeal")
+    @OneToMany(mappedBy="productDeal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Bundle> bundles;
 
     @LastModifiedDate

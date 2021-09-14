@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public class DiscountResponse {
 
-    private long id;
+    private Long id;
 
     private Integer totalFullPriceItems;
 
@@ -14,11 +14,11 @@ public class DiscountResponse {
 
     private Instant lastModifiedDate;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

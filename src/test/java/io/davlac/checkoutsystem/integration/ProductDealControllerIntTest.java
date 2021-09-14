@@ -1,11 +1,13 @@
 package io.davlac.checkoutsystem.integration;
 
+import io.davlac.checkoutsystem.integration.request.BundleRequestTest;
 import io.davlac.checkoutsystem.integration.request.CreateProductDealRequestTest;
 import io.davlac.checkoutsystem.integration.request.DiscountRequestTest;
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.repository.ProductRepository;
 import io.davlac.checkoutsystem.productdeal.controller.ProductDealController;
 import io.davlac.checkoutsystem.productdeal.repository.ProductDealRepository;
+import io.davlac.checkoutsystem.productdeal.service.dto.request.BundleRequest;
 import io.davlac.checkoutsystem.productdeal.service.dto.request.CreateProductDealRequest;
 import io.davlac.checkoutsystem.productdeal.service.dto.request.DiscountRequest;
 import io.davlac.checkoutsystem.productdeal.service.dto.response.ProductDealResponse;
@@ -24,9 +26,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static io.davlac.checkoutsystem.utils.DateUtils.assertInstantsEqualByMilli;
@@ -50,8 +55,9 @@ class ProductDealControllerIntTest {
     private static final String NAME = "product_name";
     private static final String DESCRIPTION = "description";
     private static final double PRICE = 12.34;
-    private static final int DISCOUNT_50 = 50;
-    private static final int DISCOUNT_70 = 70;
+    private static final String NAME_2 = "product_name-2";
+    private static final String DESCRIPTION_2 = "description-2";
+    private static final double PRICE_2 = 45.67;
 
     @Autowired
     private MockMvc mockMvc;
@@ -66,6 +72,7 @@ class ProductDealControllerIntTest {
     private ProductRepository productRepository;
 
     Product savedProduct = new Product();
+    Product savedProduct2 = new Product();
 
     @BeforeEach
     public void setUp() {
@@ -73,8 +80,13 @@ class ProductDealControllerIntTest {
         product.setName(NAME);
         product.setDescription(DESCRIPTION);
         product.setPrice(PRICE);
-
         savedProduct = productRepository.save(product);
+
+        Product product2 = new Product();
+        product2.setName(NAME_2);
+        product2.setDescription(DESCRIPTION_2);
+        product2.setPrice(PRICE_2);
+        savedProduct2 = productRepository.save(product2);
     }
 
     @AfterEach
@@ -87,10 +99,9 @@ class ProductDealControllerIntTest {
         return Stream.of(
                 Arguments.of("50% discount on product id",
                         CreateProductDealRequestTest.builder()
-                                .withProductId(PRODUCT_ID)
                                 .withDiscount(
                                         DiscountRequestTest.builder()
-                                                .withDiscountPercentage(DISCOUNT_50)
+                                                .withDiscountPercentage(50)
                                                 .withTotalDiscountedItems(1)
                                                 .withTotalFullPriceItems(0)
                                                 .build()
@@ -98,33 +109,91 @@ class ProductDealControllerIntTest {
                                 .build()),
                 Arguments.of("Buy 2, third 70%",
                         CreateProductDealRequestTest.builder()
-                                .withProductId(PRODUCT_ID)
                                 .withDiscount(
                                         DiscountRequestTest.builder()
-                                                .withDiscountPercentage(DISCOUNT_70)
+                                                .withDiscountPercentage(70)
                                                 .withTotalDiscountedItems(1)
                                                 .withTotalFullPriceItems(2)
                                                 .build()
                                 )
-                                .build()
-                )
+                                .build()),
+                Arguments.of("Buy 1 product, another free",
+                        CreateProductDealRequestTest.builder()
+                                .withBundles(
+                                        Set.of(
+                                                new BundleRequestTest(100)
+                                        )
+                                )
+                                .build()),
+                Arguments.of("Buy 1 product, 2 other products 50%",
+                        CreateProductDealRequestTest.builder()
+                                .withBundles(
+                                        Set.of(
+                                                new BundleRequestTest(50),
+                                                new BundleRequestTest(50)
+                                        )
+                                )
+                                .build()),
+                Arguments.of("Deal with empty bundle",
+                        CreateProductDealRequestTest.builder()
+                                .withDiscount(
+                                        DiscountRequestTest.builder()
+                                                .withDiscountPercentage(70)
+                                                .withTotalDiscountedItems(1)
+                                                .withTotalFullPriceItems(2)
+                                                .build()
+                                )
+                                .withBundles(Set.of())
+                                .build()),
+                Arguments.of("Deal with 2 different products at 70%",
+                        CreateProductDealRequestTest.builder()
+                                .withDiscount(
+                                        DiscountRequestTest.builder()
+                                                .withDiscountPercentage(70)
+                                                .withTotalDiscountedItems(1)
+                                                .withTotalFullPriceItems(0)
+                                                .build()
+                                )
+                                .withBundles(Set.of(
+                                        new BundleRequestTest(70)
+                                ))
+                                .build())
         );
     }
 
     @ParameterizedTest
     @MethodSource("createDealParameters")
     void create_withGoodData_shouldReturnSavedDeal(String test,
-                                                   CreateProductDealRequestTest req) throws Exception {
+                                                   CreateProductDealRequestTest reqTemp) throws Exception {
         int dealsBefore = productDealRepository.findAll().size();
 
+        // build bundle create request
+        Set<BundleRequest> bundleRequests = new HashSet<>();
+        if (!CollectionUtils.isEmpty(reqTemp.getBundles())) {
+            reqTemp.getBundles().forEach(reqBundle -> {
+                bundleRequests.add(BundleRequest.builder()
+                        .withProductId(savedProduct2.getId())
+                        .withDiscountPercentage(reqBundle.getDiscountPercentage())
+                        .build());
+            });
+        }
+
+        // build deal create request
         CreateProductDealRequest request = CreateProductDealRequest.builder()
                 .withProductId(savedProduct.getId())
                 .withDiscount(
-                        DiscountRequest.builder()
-                                .withDiscountPercentage(req.getDiscount().getDiscountPercentage())
-                                .withTotalDiscountedItems(req.getDiscount().getTotalDiscountedItems())
-                                .withTotalFullPriceItems(req.getDiscount().getTotalFullPriceItems())
+                        (reqTemp.getDiscount() != null)
+                                ? DiscountRequest.builder()
+                                .withDiscountPercentage(reqTemp.getDiscount().getDiscountPercentage())
+                                .withTotalDiscountedItems(reqTemp.getDiscount().getTotalDiscountedItems())
+                                .withTotalFullPriceItems(reqTemp.getDiscount().getTotalFullPriceItems())
                                 .build()
+                                : null
+                )
+                .withBundles(
+                        (!CollectionUtils.isEmpty(reqTemp.getBundles()))
+                                ? bundleRequests
+                                : null
                 )
                 .build();
 
@@ -137,7 +206,7 @@ class ProductDealControllerIntTest {
         ProductDealResponse response = (ProductDealResponse) jsonUtils
                 .deserializeResult(resultActions, ProductDealResponse.class);
 
-        assertTrue(response.getId() > 0);
+        assertNotNull(response.getId());
         assertNotNull(response.getLastModifiedDate());
 
         // assertions product
@@ -150,11 +219,26 @@ class ProductDealControllerIntTest {
 
         // assertions discount
         if (request.getDiscount() != null) {
-            assertTrue(response.getDiscount().getId() > 0);
+            assertNotNull(response.getDiscount().getId());
             assertEquals(request.getDiscount().getDiscountPercentage(), response.getDiscount().getDiscountPercentage());
             assertEquals(request.getDiscount().getTotalDiscountedItems(), response.getDiscount().getTotalDiscountedItems());
             assertEquals(request.getDiscount().getTotalFullPriceItems(), response.getDiscount().getTotalFullPriceItems());
             assertNotNull(response.getDiscount().getLastModifiedDate());
+        }
+
+        // assertions bundle
+        if (!CollectionUtils.isEmpty(request.getBundles())) {
+            assertNotNull(response.getBundles());
+            assertEquals(request.getBundles().size(), response.getBundles().size());
+            response.getBundles().forEach(responseBundle -> {
+                assertNotNull(responseBundle.getId());
+                assertNotNull(responseBundle.getLastModifiedDate());
+
+                assertTrue(request.getBundles().stream()
+                        .anyMatch(reqBundle -> reqBundle.getProductId().equals(responseBundle.getProduct().getId())));
+                assertTrue(request.getBundles().stream()
+                        .anyMatch(reqBundle -> reqBundle.getDiscountPercentage().equals(responseBundle.getDiscountPercentage())));
+            });
         }
 
         // database assertions
@@ -174,7 +258,7 @@ class ProductDealControllerIntTest {
                                 .withProductId(PRODUCT_ID)
                                 .withDiscount(
                                         DiscountRequest.builder()
-                                                .withDiscountPercentage(DISCOUNT_50)
+                                                .withDiscountPercentage(50)
                                                 .withTotalDiscountedItems(0)
                                                 .withTotalFullPriceItems(0)
                                                 .build()
@@ -260,6 +344,75 @@ class ProductDealControllerIntTest {
                                                 .withDiscountPercentage(0)
                                                 .withDiscountPercentage(1)
                                                 .build()
+                                )
+                                .build()),
+                Arguments.of("Bundle without product ID",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .withBundles(
+                                        Set.of(
+                                                BundleRequest.builder()
+                                                        .withDiscountPercentage(50)
+                                                        .build()
+                                        )
+                                )
+                                .build()),
+                Arguments.of("Bundle without percentage discount",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .withBundles(
+                                        Set.of(
+                                                BundleRequest.builder()
+                                                        .withProductId(PRODUCT_ID)
+                                                        .build()
+                                        )
+                                )
+                                .build()),
+                Arguments.of("Bundle with discount percentage negative",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .withBundles(
+                                        Set.of(
+                                                BundleRequest.builder()
+                                                        .withProductId(PRODUCT_ID)
+                                                        .withDiscountPercentage(-10)
+                                                        .build()
+                                        )
+                                )
+                                .build()),
+                Arguments.of("Bundle with discount percentage greater than 100",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .withBundles(
+                                        Set.of(
+                                                BundleRequest.builder()
+                                                        .withProductId(PRODUCT_ID)
+                                                        .withDiscountPercentage(101)
+                                                        .build()
+                                        )
+                                )
+                                .build()),
+                Arguments.of("Deal without discount and bundle",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .build()),
+                Arguments.of("Grouped discount and bundle in the same time",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .withDiscount(
+                                        DiscountRequest.builder()
+                                                .withDiscountPercentage(0)
+                                                .withTotalFullPriceItems(3)
+                                                .withTotalDiscountedItems(3)
+                                                .build()
+                                )
+                                .withBundles(
+                                        Set.of(
+                                                BundleRequest.builder()
+                                                        .withProductId(PRODUCT_ID)
+                                                        .withDiscountPercentage(100)
+                                                        .build()
+                                        )
                                 )
                                 .build())
         );

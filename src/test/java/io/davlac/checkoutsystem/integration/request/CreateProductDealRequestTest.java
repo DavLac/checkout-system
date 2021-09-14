@@ -4,12 +4,10 @@ import java.util.Set;
 
 public final class CreateProductDealRequestTest {
 
-    private final Long productId;
     private final DiscountRequestTest discount;
     private final Set<BundleRequestTest> bundles;
 
     public CreateProductDealRequestTest(CreateProductDealRequestTest.Builder builder) {
-        this.productId = builder.productId;
         this.discount = builder.discount;
         this.bundles = builder.bundles;
     }
@@ -19,14 +17,8 @@ public final class CreateProductDealRequestTest {
     }
 
     public static class Builder {
-        private Long productId;
         private DiscountRequestTest discount;
         private Set<BundleRequestTest> bundles;
-
-        public Builder withProductId(Long productId) {
-            this.productId = productId;
-            return this;
-        }
 
         public Builder withDiscount(DiscountRequestTest discount) {
             this.discount = discount;
@@ -41,10 +33,6 @@ public final class CreateProductDealRequestTest {
         public CreateProductDealRequestTest build() {
             return new CreateProductDealRequestTest(this);
         }
-    }
-
-    public Long getProductId() {
-        return productId;
     }
 
     public DiscountRequestTest getDiscount() {

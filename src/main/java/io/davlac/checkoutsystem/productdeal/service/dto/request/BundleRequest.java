@@ -13,6 +13,7 @@ public final class BundleRequest {
     @NotNull
     private final Long productId;
 
+    @NotNull
     @Min(0)
     @Max(100)
     private final Integer discountPercentage;

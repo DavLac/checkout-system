@@ -1,6 +1,9 @@
 package io.davlac.checkoutsystem.productdeal.model;
 
 import io.davlac.checkoutsystem.product.model.Product;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -21,6 +24,9 @@ import java.util.Set;
 @Entity
 @Table(name = "PRODUCTDEALS")
 @EntityListeners(AuditingEntityListener.class)
+@Getter
+@Setter
+@ToString
 public class ProductDeal {
 
     @Id
@@ -35,60 +41,9 @@ public class ProductDeal {
     @JoinColumn(name = "discount_id", referencedColumnName = "id")
     private Discount discount;
 
-    @OneToMany(mappedBy="productDeal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "productDeal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Bundle> bundles;
 
     @LastModifiedDate
     private Instant lastModifiedDate;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public Discount getDiscount() {
-        return discount;
-    }
-
-    public void setDiscount(Discount discount) {
-        this.discount = discount;
-    }
-
-    public Set<Bundle> getBundles() {
-        return bundles;
-    }
-
-    public void setBundles(Set<Bundle> bundles) {
-        this.bundles = bundles;
-    }
-
-    public Instant getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(Instant lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
-    @Override
-    public String toString() {
-        return "ProductDeal{" +
-                "id=" + id +
-                ", product=" + product +
-                ", discount=" + discount +
-                ", bundles=" + bundles +
-                ", lastModifiedDate=" + lastModifiedDate +
-                '}';
-    }
 }

@@ -1,6 +1,9 @@
 package io.davlac.checkoutsystem.basket.model;
 
 import io.davlac.checkoutsystem.product.model.Product;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -16,6 +19,9 @@ import java.time.Instant;
 @Entity
 @Table(name = "PRODUCT_BASKETS")
 @EntityListeners(AuditingEntityListener.class)
+@Getter
+@Setter
+@ToString
 public class BasketProduct {
 
     @Id
@@ -30,46 +36,4 @@ public class BasketProduct {
 
     @LastModifiedDate
     private Instant lastModifiedDate;
-
-    public Long getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Long productId) {
-        this.productId = productId;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public Instant getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(Instant lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
-    @Override
-    public String toString() {
-        return "BasketProduct{" +
-                "productId=" + productId +
-                ", quantity=" + quantity +
-                ", product=" + product +
-                ", lastModifiedDate=" + lastModifiedDate +
-                '}';
-    }
 }

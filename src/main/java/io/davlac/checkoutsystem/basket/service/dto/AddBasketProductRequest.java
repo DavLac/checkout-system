@@ -2,10 +2,14 @@ package io.davlac.checkoutsystem.basket.service.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Getter;
+import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
+@Getter
+@ToString
 @JsonDeserialize(builder = AddBasketProductRequest.Builder.class)
 public class AddBasketProductRequest {
 
@@ -43,21 +47,5 @@ public class AddBasketProductRequest {
         public AddBasketProductRequest build() {
             return new AddBasketProductRequest(this);
         }
-    }
-
-    public Long getProductId() {
-        return productId;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    @Override
-    public String toString() {
-        return "AddBasketProductRequest{" +
-                "productId=" + productId +
-                ", quantity=" + quantity +
-                '}';
     }
 }

@@ -2,6 +2,8 @@ package io.davlac.checkoutsystem.product.service.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Getter;
+import lombok.ToString;
 
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotEmpty;
@@ -9,6 +11,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
+@Getter
+@ToString
 @JsonDeserialize(builder = CreateProductRequest.Builder.class)
 public final class CreateProductRequest {
 
@@ -58,26 +62,5 @@ public final class CreateProductRequest {
         public CreateProductRequest build() {
             return new CreateProductRequest(this);
         }
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    @Override
-    public String toString() {
-        return "CreateProductRequest{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", price=" + price +
-                '}';
     }
 }

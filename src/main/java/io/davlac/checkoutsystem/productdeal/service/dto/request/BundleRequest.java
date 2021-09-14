@@ -2,11 +2,15 @@ package io.davlac.checkoutsystem.productdeal.service.dto.request;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Getter;
+import lombok.ToString;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+@Getter
+@ToString
 @JsonDeserialize(builder = BundleRequest.Builder.class)
 public final class BundleRequest {
 
@@ -45,21 +49,5 @@ public final class BundleRequest {
         public BundleRequest build() {
             return new BundleRequest(this);
         }
-    }
-
-    public Long getProductId() {
-        return productId;
-    }
-
-    public Integer getDiscountPercentage() {
-        return discountPercentage;
-    }
-
-    @Override
-    public String toString() {
-        return "BundleRequest{" +
-                "productId=" + productId +
-                ", discountPercentage=" + discountPercentage +
-                '}';
     }
 }

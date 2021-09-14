@@ -2,11 +2,15 @@ package io.davlac.checkoutsystem.productdeal.service.dto.request;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Getter;
+import lombok.ToString;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+@Getter
+@ToString
 @JsonDeserialize(builder = DiscountRequest.Builder.class)
 public final class DiscountRequest {
 
@@ -57,26 +61,5 @@ public final class DiscountRequest {
         public DiscountRequest build() {
             return new DiscountRequest(this);
         }
-    }
-
-    public Integer getTotalFullPriceItems() {
-        return totalFullPriceItems;
-    }
-
-    public Integer getTotalDiscountedItems() {
-        return totalDiscountedItems;
-    }
-
-    public Integer getDiscountPercentage() {
-        return discountPercentage;
-    }
-
-    @Override
-    public String toString() {
-        return "DiscountRequest{" +
-                "totalFullPriceItems=" + totalFullPriceItems +
-                ", totalDiscountedItems=" + totalDiscountedItems +
-                ", discountPercentage=" + discountPercentage +
-                '}';
     }
 }

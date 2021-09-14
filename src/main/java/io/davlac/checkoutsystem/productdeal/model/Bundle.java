@@ -2,6 +2,9 @@ package io.davlac.checkoutsystem.productdeal.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.davlac.checkoutsystem.product.model.Product;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -23,6 +26,9 @@ import java.time.Instant;
 @Table(name = "BUNDLES")
 @EntityListeners(AuditingEntityListener.class)
 @JsonIgnoreProperties({"productDeal"})
+@Getter
+@Setter
+@ToString
 public class Bundle {
 
     @Id
@@ -44,55 +50,4 @@ public class Bundle {
 
     @LastModifiedDate
     private Instant lastModifiedDate;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public Integer getDiscountPercentage() {
-        return discountPercentage;
-    }
-
-    public void setDiscountPercentage(Integer discountPercentage) {
-        this.discountPercentage = discountPercentage;
-    }
-
-    public ProductDeal getProductDeal() {
-        return productDeal;
-    }
-
-    public void setProductDeal(ProductDeal productDeal) {
-        this.productDeal = productDeal;
-    }
-
-    public Instant getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(Instant lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
-    @Override
-    public String toString() {
-        return "Bundle{" +
-                "id=" + id +
-                ", product=" + product +
-                ", discountPercentage=" + discountPercentage +
-                ", productDeal=" + productDeal +
-                ", lastModifiedDate=" + lastModifiedDate +
-                '}';
-    }
 }

@@ -6,6 +6,7 @@ import io.davlac.checkoutsystem.productdeal.service.dto.response.ProductDealResp
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,13 +22,10 @@ import java.net.URI;
 @RestController
 @RequestMapping(value = "/product-deals")
 @Validated
+@RequiredArgsConstructor
 public class ProductDealController {
 
     private final ProductDealService productDealService;
-
-    public ProductDealController(ProductDealService productDealService) {
-        this.productDealService = productDealService;
-    }
 
     @PostMapping
     @Operation(description = "Create a product deal")

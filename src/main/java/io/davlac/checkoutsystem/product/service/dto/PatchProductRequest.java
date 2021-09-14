@@ -2,6 +2,8 @@ package io.davlac.checkoutsystem.product.service.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Getter;
+import lombok.ToString;
 
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Positive;
@@ -9,6 +11,8 @@ import javax.validation.constraints.Size;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+@Getter
+@ToString
 @JsonDeserialize(builder = PatchProductRequest.Builder.class)
 public final class PatchProductRequest {
 
@@ -51,21 +55,5 @@ public final class PatchProductRequest {
     public boolean isEmpty() {
         return Stream.of(this.price, this.description)
                 .allMatch(Objects::isNull);
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    @Override
-    public String toString() {
-        return "PatchProductRequest{" +
-                "description='" + description + '\'' +
-                ", price=" + price +
-                '}';
     }
 }

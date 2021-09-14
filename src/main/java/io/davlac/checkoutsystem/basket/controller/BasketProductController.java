@@ -5,6 +5,7 @@ import io.davlac.checkoutsystem.basket.service.dto.BasketProductResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,7 @@ import java.time.Instant;
 @RestController
 @RequestMapping(value = "/basket-products")
 @Validated
+@RequiredArgsConstructor
 public class BasketProductController {
 
     @PostMapping("add")

@@ -113,27 +113,27 @@ class ProductDealControllerIntTest {
         return Stream.of(
                 Arguments.of("50% discount on product id",
                         CreateProductDealRequestTest.builder()
-                                .withDiscount(
+                                .discount(
                                         DiscountRequestTest.builder()
-                                                .withDiscountPercentage(50)
-                                                .withTotalDiscountedItems(1)
-                                                .withTotalFullPriceItems(0)
+                                                .discountPercentage(50)
+                                                .totalDiscountedItems(1)
+                                                .totalFullPriceItems(0)
                                                 .build()
                                 )
                                 .build()),
                 Arguments.of("Buy 2, third 70%",
                         CreateProductDealRequestTest.builder()
-                                .withDiscount(
+                                .discount(
                                         DiscountRequestTest.builder()
-                                                .withDiscountPercentage(70)
-                                                .withTotalDiscountedItems(1)
-                                                .withTotalFullPriceItems(2)
+                                                .discountPercentage(70)
+                                                .totalDiscountedItems(1)
+                                                .totalFullPriceItems(2)
                                                 .build()
                                 )
                                 .build()),
                 Arguments.of("Buy 1 product, another free",
                         CreateProductDealRequestTest.builder()
-                                .withBundles(
+                                .bundles(
                                         Set.of(
                                                 new BundleRequestTest(100)
                                         )
@@ -141,7 +141,7 @@ class ProductDealControllerIntTest {
                                 .build()),
                 Arguments.of("Buy 1 product, 2 other products 50%",
                         CreateProductDealRequestTest.builder()
-                                .withBundles(
+                                .bundles(
                                         Set.of(
                                                 new BundleRequestTest(50),
                                                 new BundleRequestTest(50)
@@ -150,25 +150,25 @@ class ProductDealControllerIntTest {
                                 .build()),
                 Arguments.of("Deal with empty bundle",
                         CreateProductDealRequestTest.builder()
-                                .withDiscount(
+                                .discount(
                                         DiscountRequestTest.builder()
-                                                .withDiscountPercentage(70)
-                                                .withTotalDiscountedItems(1)
-                                                .withTotalFullPriceItems(2)
+                                                .discountPercentage(70)
+                                                .totalDiscountedItems(1)
+                                                .totalFullPriceItems(2)
                                                 .build()
                                 )
-                                .withBundles(Set.of())
+                                .bundles(Set.of())
                                 .build()),
                 Arguments.of("Deal with 2 different products at 70%",
                         CreateProductDealRequestTest.builder()
-                                .withDiscount(
+                                .discount(
                                         DiscountRequestTest.builder()
-                                                .withDiscountPercentage(70)
-                                                .withTotalDiscountedItems(1)
-                                                .withTotalFullPriceItems(0)
+                                                .discountPercentage(70)
+                                                .totalDiscountedItems(1)
+                                                .totalFullPriceItems(0)
                                                 .build()
                                 )
-                                .withBundles(Set.of(
+                                .bundles(Set.of(
                                         new BundleRequestTest(70)
                                 ))
                                 .build())

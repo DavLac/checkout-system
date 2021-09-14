@@ -2,11 +2,15 @@ package io.davlac.checkoutsystem.productdeal.service.dto.request;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Getter;
+import lombok.ToString;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
+@Getter
+@ToString
 @JsonDeserialize(builder = CreateProductDealRequest.Builder.class)
 public final class CreateProductDealRequest {
 
@@ -51,26 +55,5 @@ public final class CreateProductDealRequest {
         public CreateProductDealRequest build() {
             return new CreateProductDealRequest(this);
         }
-    }
-
-    public Long getProductId() {
-        return productId;
-    }
-
-    public DiscountRequest getDiscount() {
-        return discount;
-    }
-
-    public Set<BundleRequest> getBundles() {
-        return bundles;
-    }
-
-    @Override
-    public String toString() {
-        return "CreateProductDealRequest{" +
-                "productId=" + productId +
-                ", discount=" + discount +
-                ", bundles=" + bundles +
-                '}';
     }
 }

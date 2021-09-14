@@ -2,7 +2,6 @@ package io.davlac.checkoutsystem.productdeal.service;
 
 import io.davlac.checkoutsystem.product.controller.error.BadRequestException;
 import io.davlac.checkoutsystem.product.controller.error.NotFoundException;
-import io.davlac.checkoutsystem.product.service.ProductService;
 import io.davlac.checkoutsystem.productdeal.model.ProductDeal;
 import io.davlac.checkoutsystem.productdeal.repository.ProductDealRepository;
 import io.davlac.checkoutsystem.productdeal.service.dto.request.CreateProductDealRequest;
@@ -19,14 +18,11 @@ public class ProductDealService {
 
     private final ProductDealRepository productDealRepository;
     private final ProductDealMapper productDealMapper;
-    private final ProductService productService;
 
     public ProductDealService(ProductDealRepository productDealRepository,
-                              ProductDealMapper productDealMapper,
-                              ProductService productService) {
+                              ProductDealMapper productDealMapper) {
         this.productDealRepository = productDealRepository;
         this.productDealMapper = productDealMapper;
-        this.productService = productService;
     }
 
     @Transactional

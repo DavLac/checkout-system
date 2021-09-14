@@ -15,7 +15,7 @@ public final class DiscountRequest {
     private final Integer totalFullPriceItems;
 
     @NotNull
-    @Min(0)
+    @Min(1)
     private final Integer totalDiscountedItems;
 
     @NotNull

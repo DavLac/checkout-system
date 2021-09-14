@@ -10,6 +10,7 @@ import io.davlac.checkoutsystem.productdeal.service.dto.request.CreateProductDea
 import io.davlac.checkoutsystem.productdeal.service.dto.request.DiscountRequest;
 import io.davlac.checkoutsystem.productdeal.service.dto.response.ProductDealResponse;
 import io.davlac.checkoutsystem.utils.JsonUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -73,9 +74,13 @@ class ProductDealControllerIntTest {
         product.setDescription(DESCRIPTION);
         product.setPrice(PRICE);
 
+        savedProduct = productRepository.save(product);
+    }
+
+    @AfterEach
+    public void clean() {
         productDealRepository.deleteAll();
         productRepository.deleteAll();
-        savedProduct = productRepository.save(product);
     }
 
     public static Stream<Arguments> createDealParameters() {
@@ -157,5 +162,116 @@ class ProductDealControllerIntTest {
         assertEquals(dealsBefore + 1, dealsAfter);
         assertEquals(1, dealsAfter);
         assertNotEquals(Optional.empty(), productDealRepository.findById(response.getId()));
+    }
+
+    public static Stream<Arguments> createDealErrorParameters() {
+        return Stream.of(
+                Arguments.of("No product id",
+                        CreateProductDealRequest.builder()
+                                .build()),
+                Arguments.of("Discounted items 0",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .withDiscount(
+                                        DiscountRequest.builder()
+                                                .withDiscountPercentage(DISCOUNT_50)
+                                                .withTotalDiscountedItems(0)
+                                                .withTotalFullPriceItems(0)
+                                                .build()
+                                )
+                                .build()),
+                Arguments.of("Discount percentage negative",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .withDiscount(
+                                        DiscountRequest.builder()
+                                                .withDiscountPercentage(-10)
+                                                .withTotalDiscountedItems(1)
+                                                .withTotalFullPriceItems(0)
+                                                .build()
+                                )
+                                .build()),
+                Arguments.of("Discount percentage more than 100",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .withDiscount(
+                                        DiscountRequest.builder()
+                                                .withDiscountPercentage(101)
+                                                .withTotalDiscountedItems(1)
+                                                .withTotalFullPriceItems(0)
+                                                .build()
+                                )
+                                .build()),
+                Arguments.of("Discounted negative",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .withDiscount(
+                                        DiscountRequest.builder()
+                                                .withDiscountPercentage(0)
+                                                .withTotalDiscountedItems(-1)
+                                                .withTotalFullPriceItems(0)
+                                                .build()
+                                )
+                                .build()),
+                Arguments.of("Full price negative",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .withDiscount(
+                                        DiscountRequest.builder()
+                                                .withDiscountPercentage(0)
+                                                .withTotalDiscountedItems(1)
+                                                .withTotalFullPriceItems(-1)
+                                                .build()
+                                )
+                                .build()),
+                Arguments.of("Discount empty",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .withDiscount(
+                                        DiscountRequest.builder()
+                                                .build()
+                                )
+                                .build()),
+                Arguments.of("No discount percentage",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .withDiscount(
+                                        DiscountRequest.builder()
+                                                .withTotalDiscountedItems(1)
+                                                .withTotalFullPriceItems(0)
+                                                .build()
+                                )
+                                .build()),
+                Arguments.of("No discounted",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .withDiscount(
+                                        DiscountRequest.builder()
+                                                .withDiscountPercentage(0)
+                                                .withTotalFullPriceItems(0)
+                                                .build()
+                                )
+                                .build()),
+                Arguments.of("No full price",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .withDiscount(
+                                        DiscountRequest.builder()
+                                                .withDiscountPercentage(0)
+                                                .withDiscountPercentage(1)
+                                                .build()
+                                )
+                                .build())
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("createDealErrorParameters")
+    void create_withBadRequest_shouldThrowBadRequest(String test,
+                                                     CreateProductDealRequest req) throws Exception {
+        mockMvc.perform(post(PRODUCT_DEALS_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(req)))
+                .andExpect(status().isBadRequest());
     }
 }

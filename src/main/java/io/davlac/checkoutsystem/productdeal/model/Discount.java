@@ -28,7 +28,7 @@ public class Discount {
     private Integer totalFullPriceItems;
 
     @NotNull
-    @Min(0)
+    @Min(1)
     private Integer totalDiscountedItems;
 
     @NotNull

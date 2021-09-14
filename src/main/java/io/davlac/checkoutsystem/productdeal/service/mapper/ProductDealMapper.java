@@ -1,7 +1,6 @@
 package io.davlac.checkoutsystem.productdeal.service.mapper;
 
 import io.davlac.checkoutsystem.product.model.Product;
-import io.davlac.checkoutsystem.product.repository.ProductRepository;
 import io.davlac.checkoutsystem.product.service.ProductService;
 import io.davlac.checkoutsystem.productdeal.model.ProductDeal;
 import io.davlac.checkoutsystem.productdeal.service.dto.request.CreateProductDealRequest;

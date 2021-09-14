@@ -9,6 +9,7 @@ import io.davlac.checkoutsystem.product.service.dto.ProductResponse;
 import io.davlac.checkoutsystem.utils.JsonUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.core.IsNull;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.event.annotation.AfterTestClass;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -71,11 +73,14 @@ class ProductControllerIntTest {
 
     @BeforeEach
     public void setUp() {
-        productRepository.deleteAll();
-
         product.setName(NAME);
         product.setDescription(DESCRIPTION);
         product.setPrice(PRICE);
+    }
+
+    @AfterEach
+    public void clean() {
+        productRepository.deleteAll();
     }
 
     @Test

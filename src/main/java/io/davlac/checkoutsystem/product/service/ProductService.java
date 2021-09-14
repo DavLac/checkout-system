@@ -11,6 +11,8 @@ import io.davlac.checkoutsystem.product.service.mapper.ProductMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotNull;
+
 @Service
 public class ProductService {
 
@@ -23,26 +25,26 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse create(CreateProductRequest request) {
+    public ProductResponse create(@NotNull CreateProductRequest request) {
         Product product = productMapper.toEntity(request);
         Product productSaved = productRepository.save(product);
         return productMapper.toDto(productSaved);
     }
 
     @Transactional(readOnly = true)
-    public ProductResponse getById(long id) {
+    public ProductResponse getById(final long id) {
         Product product = getEntityById(id);
         return productMapper.toDto(product);
     }
 
     @Transactional
-    public void deleteById(long id) {
+    public void deleteById(final long id) {
         Product product = getEntityById(id);
         productRepository.delete(product);
     }
 
     @Transactional
-    public ProductResponse patchById(long id, PatchProductRequest request) {
+    public ProductResponse patchById(final long id, @NotNull PatchProductRequest request) {
         if(request.isEmpty()) {
             throw new BadRequestException("Body is empty");
         }
@@ -53,7 +55,7 @@ public class ProductService {
         return productMapper.toDto(productPatched);
     }
 
-    private Product getEntityById(long id) {
+    private Product getEntityById(final long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
     }

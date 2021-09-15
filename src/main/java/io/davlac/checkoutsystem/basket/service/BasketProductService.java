@@ -3,16 +3,21 @@ package io.davlac.checkoutsystem.basket.service;
 import io.davlac.checkoutsystem.basket.model.BasketProduct;
 import io.davlac.checkoutsystem.basket.repository.BasketProductRepository;
 import io.davlac.checkoutsystem.basket.service.dto.AddBasketProductRequest;
+import io.davlac.checkoutsystem.basket.service.dto.BasketProductDetailsResponse;
 import io.davlac.checkoutsystem.basket.service.dto.BasketProductResponse;
+import io.davlac.checkoutsystem.basket.service.dto.TotalBasketProductResponse;
 import io.davlac.checkoutsystem.basket.service.mapper.BasketProductMapper;
 import io.davlac.checkoutsystem.product.controller.error.NotFoundException;
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.service.ProductService;
+import io.davlac.checkoutsystem.productdeal.service.dto.response.ProductDealResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -46,6 +51,21 @@ public class BasketProductService {
         Product product = productService.getEntityById(productId);
         BasketProduct basketProduct = getBasketProductByProductId(product);
         basketProductRepository.delete(basketProduct);
+    }
+
+    @Transactional(readOnly = true)
+    public TotalBasketProductResponse calculateTotalPrice() {
+        TotalBasketProductResponse response = new TotalBasketProductResponse();
+        response.setTotalPrice(10.0);
+        BasketProductDetailsResponse details = new BasketProductDetailsResponse();
+        details.setQuantity(10);
+        details.setBasketProductDeals(List.of(new ProductDealResponse(), new ProductDealResponse()));
+        Map<Long, BasketProductDetailsResponse> basketProductDeals = Map.of(
+                1L, details,
+                2L, details
+        );
+        response.setProductDetails(basketProductDeals);
+        return response;
     }
 
     private BasketProduct getBasketProductByProductId(Product product) {

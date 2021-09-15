@@ -5,6 +5,7 @@ import io.davlac.checkoutsystem.basket.model.BasketProduct;
 import io.davlac.checkoutsystem.basket.repository.BasketProductRepository;
 import io.davlac.checkoutsystem.basket.service.dto.AddBasketProductRequest;
 import io.davlac.checkoutsystem.basket.service.dto.BasketProductResponse;
+import io.davlac.checkoutsystem.basket.service.dto.TotalBasketProductResponse;
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.repository.ProductRepository;
 import io.davlac.checkoutsystem.utils.JsonUtils;
@@ -46,6 +47,7 @@ class BasketControllerIntTest {
 
     private static final String BASKET_PRODUCTS_URI = "/basket-products";
     private static final String ADD_PRODUCTS_URI = "/add";
+    private static final String CALCULATE_TOTAL_PRODUCTS_URI = "/calculate-total";
     private static final String NAME = "product_name";
     private static final String DESCRIPTION = "description";
     private static final double PRICE = 12.34;
@@ -322,5 +324,22 @@ class BasketControllerIntTest {
         mockMvc.perform(delete(BASKET_PRODUCTS_URI + "/456789")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void calculateTotalPrice_withExistingProductBaskets_shouldTotalPriceAndProductDetails() throws Exception {
+        ResultActions resultActions = mockMvc.perform(
+                post(BASKET_PRODUCTS_URI + CALCULATE_TOTAL_PRODUCTS_URI)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
+                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+
+        assertEquals(10.0, response.getTotalPrice());
+        assertEquals(10, response.getProductDetails().get(savedProduct.getId()).getQuantity());
+        assertEquals(10, response.getProductDetails().get(savedProduct2.getId()).getQuantity());
+        assertEquals(2, response.getProductDetails().get(savedProduct.getId()).getBasketProductDeals().size());
+        assertEquals(2, response.getProductDetails().get(savedProduct2.getId()).getBasketProductDeals().size());
     }
 }

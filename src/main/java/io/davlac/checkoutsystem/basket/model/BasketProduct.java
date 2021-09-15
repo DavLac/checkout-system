@@ -19,7 +19,7 @@ import javax.persistence.Table;
 import java.time.Instant;
 
 @Entity
-@Table(name = "PRODUCT_BASKETS")
+@Table(name = "PRODUCTBASKETS")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter

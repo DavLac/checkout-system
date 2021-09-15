@@ -3,6 +3,7 @@ package io.davlac.checkoutsystem.basket.controller;
 import io.davlac.checkoutsystem.basket.service.BasketProductService;
 import io.davlac.checkoutsystem.basket.service.dto.AddBasketProductRequest;
 import io.davlac.checkoutsystem.basket.service.dto.BasketProductResponse;
+import io.davlac.checkoutsystem.basket.service.dto.TotalBasketProductResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -66,6 +67,17 @@ public class BasketProductController {
     public ResponseEntity<Void> deleteProductId(@PathVariable long productId) {
         basketProductService.deleteByProductId(productId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("calculate-total")
+    @Operation(description = "Calculate total price and products taking into account all discounts and bundles")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Product basket deleted"),
+            @ApiResponse(responseCode = "404", description = "Product or product basket not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<TotalBasketProductResponse> calculateTotal() {
+        return ResponseEntity.ok(basketProductService.calculateTotalPrice());
     }
 
 }

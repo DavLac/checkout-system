@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,10 +43,10 @@ public class BasketProductController {
     }
 
     @PatchMapping("{productId}")
-    @Operation(description = "Amend basket product")
+    @Operation(description = "Amend basket product by product ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "400", description = "Bad request"),
-            @ApiResponse(responseCode = "404", description = "Product not found"),
+            @ApiResponse(responseCode = "404", description = "Product or product basket not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<BasketProductResponse> patchByProductId(
@@ -53,6 +54,18 @@ public class BasketProductController {
             @RequestParam @Positive int quantity
     ) {
         return ResponseEntity.ok(basketProductService.patchByProductId(productId, quantity));
+    }
+
+    @DeleteMapping("{productId}")
+    @Operation(description = "Delete basket product by product ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Product basket deleted"),
+            @ApiResponse(responseCode = "404", description = "Product or product basket not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<Void> deleteProductId(@PathVariable long productId) {
+        basketProductService.deleteByProductId(productId);
+        return ResponseEntity.noContent().build();
     }
 
 }

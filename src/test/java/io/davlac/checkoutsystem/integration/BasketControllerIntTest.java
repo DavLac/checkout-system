@@ -26,11 +26,13 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static io.davlac.checkoutsystem.utils.JsonUtils.asJsonString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -289,5 +291,36 @@ class BasketControllerIntTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("quantity", String.valueOf(quantity)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Transactional
+    void deleteByProductId_withExistingProduct_shouldDeleteBasketProduct() throws Exception {
+        basketProductRepository.save(new BasketProduct(savedProduct, 5));
+        int basketBefore = basketProductRepository.findAll().size();
+
+        mockMvc.perform(delete(BASKET_PRODUCTS_URI + "/" + savedProduct.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        // database assertions
+        int basketAfter = basketProductRepository.findAll().size();
+        assertEquals(basketBefore - 1, basketAfter);
+        assertEquals(0, basketAfter);
+        assertEquals(Optional.empty(), basketProductRepository.findByProduct(savedProduct));
+    }
+
+    @Test
+    void deleteByProductId_withNotExistingBasketProduct_shouldThrowNotFoundError() throws Exception {
+        mockMvc.perform(delete(BASKET_PRODUCTS_URI + "/" + savedProduct.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteByProductId_withNotExistingProduct_shouldThrowNotFoundError() throws Exception {
+        mockMvc.perform(delete(BASKET_PRODUCTS_URI + "/456789")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }

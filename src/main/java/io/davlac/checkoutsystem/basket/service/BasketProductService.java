@@ -35,11 +35,23 @@ public class BasketProductService {
     @Transactional
     public BasketProductResponse patchByProductId(final long productId, final int quantity) {
         Product product = productService.getEntityById(productId);
-        BasketProduct basketProduct = basketProductRepository.findByProduct(product)
-                .orElseThrow(() -> new NotFoundException(String.format("No basket product found with product ID = '%d'", productId)));
+        BasketProduct basketProduct = getBasketProductByProductId(product);
         basketProductMapper.updateEntity(product, quantity, basketProduct);
         BasketProduct basketProductUpdated = basketProductRepository.save(basketProduct);
         return basketProductMapper.toDto(basketProductUpdated);
+    }
+
+    @Transactional
+    public void deleteByProductId(final long productId) {
+        Product product = productService.getEntityById(productId);
+        BasketProduct basketProduct = getBasketProductByProductId(product);
+        basketProductRepository.delete(basketProduct);
+    }
+
+    private BasketProduct getBasketProductByProductId(Product product) {
+        return basketProductRepository.findByProduct(product)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("No basket product found with product ID = '%d'", product.getId())));
     }
 
     private static BasketProduct createOrUpdateBasketProduct(Optional<BasketProduct> basketProductOpt,
@@ -52,5 +64,4 @@ public class BasketProductService {
         basketProductOpt.get().setQuantity(basketProductOpt.get().getQuantity() + quantity);
         return basketProductOpt.get();
     }
-
 }

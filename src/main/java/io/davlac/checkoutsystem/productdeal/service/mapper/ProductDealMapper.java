@@ -6,6 +6,7 @@ import io.davlac.checkoutsystem.productdeal.model.Bundle;
 import io.davlac.checkoutsystem.productdeal.model.ProductDeal;
 import io.davlac.checkoutsystem.productdeal.service.dto.request.BundleRequest;
 import io.davlac.checkoutsystem.productdeal.service.dto.request.CreateProductDealRequest;
+import io.davlac.checkoutsystem.productdeal.service.dto.response.BundleResponse;
 import io.davlac.checkoutsystem.productdeal.service.dto.response.ProductDealResponse;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.InjectionStrategy;
@@ -31,11 +32,20 @@ public abstract class ProductDealMapper {
     @Mapping(target = "product", source = "dto.productId", qualifiedByName = "productIdToProduct")
     public abstract Bundle toEntity(BundleRequest dto);
 
+    @Mapping(target = "productId", source = "entity.product", qualifiedByName = "productToProductId")
     public abstract ProductDealResponse toDto(ProductDeal entity);
+
+    @Mapping(target = "productId", source = "entity.product", qualifiedByName = "productToProductId")
+    public abstract BundleResponse toDto(Bundle entity);
 
     @Named("productIdToProduct")
     public Product productIdToProduct(Long productId) {
         return productService.getEntityById(productId);
+    }
+
+    @Named("productToProductId")
+    public Long productToProductId(Product product) {
+        return product.getId();
     }
 
     @AfterMapping

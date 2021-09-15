@@ -1,6 +1,5 @@
 package io.davlac.checkoutsystem.productdeal.service.dto.response;
 
-import io.davlac.checkoutsystem.product.service.dto.ProductResponse;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,7 +13,7 @@ import java.util.Set;
 public class ProductDealResponse {
 
     private Long id;
-    private ProductResponse product;
+    private Long productId;
     private DiscountResponse discount;
     private Set<BundleResponse> bundles;
     private Instant lastModifiedDate;

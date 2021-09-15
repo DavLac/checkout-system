@@ -223,12 +223,7 @@ class ProductDealControllerIntTest {
         assertNotNull(response.getLastModifiedDate());
 
         // assertions product
-        assertNotNull(response.getProduct());
-        assertEquals(request.getProductId(), response.getProduct().getId());
-        assertEquals(savedProduct.getName(), response.getProduct().getName());
-        assertEquals(savedProduct.getDescription(), response.getProduct().getDescription());
-        assertEquals(savedProduct.getPrice(), response.getProduct().getPrice());
-        assertInstantsEqualByMilli(savedProduct.getLastModifiedDate(), response.getProduct().getLastModifiedDate());
+        assertEquals(request.getProductId(), response.getProductId());
 
         // assertions discount
         if (request.getDiscount() != null) {
@@ -248,7 +243,7 @@ class ProductDealControllerIntTest {
                 assertNotNull(responseBundle.getLastModifiedDate());
 
                 assertTrue(request.getBundles().stream()
-                        .anyMatch(reqBundle -> reqBundle.getProductId().equals(responseBundle.getProduct().getId())));
+                        .anyMatch(reqBundle -> reqBundle.getProductId().equals(responseBundle.getProductId())));
                 assertTrue(request.getBundles().stream()
                         .anyMatch(reqBundle -> reqBundle.getDiscountPercentage().equals(responseBundle.getDiscountPercentage())));
             });

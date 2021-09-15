@@ -58,7 +58,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ProductDealControllerIntTest {
 
     private static final String PRODUCT_DEALS_URI = "/product-deals";
-    private static final String GET_PRODUCT_DEALS_URI = "/product-deals/products";
     private static final long PRODUCT_ID = 123L;
     private static final String NAME = "product_name";
     private static final String DESCRIPTION = "description";

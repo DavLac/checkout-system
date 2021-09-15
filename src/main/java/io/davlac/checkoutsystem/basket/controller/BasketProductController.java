@@ -1,5 +1,6 @@
 package io.davlac.checkoutsystem.basket.controller;
 
+import io.davlac.checkoutsystem.basket.service.BasketProductService;
 import io.davlac.checkoutsystem.basket.service.dto.AddBasketProductRequest;
 import io.davlac.checkoutsystem.basket.service.dto.BasketProductResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,13 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.time.Instant;
 
 @RestController
 @RequestMapping(value = "/basket-products")
 @Validated
 @RequiredArgsConstructor
 public class BasketProductController {
+
+    private final BasketProductService basketProductService;
 
     @PostMapping("add")
     @Operation(description = "Add product to basket")
@@ -31,11 +33,7 @@ public class BasketProductController {
     public ResponseEntity<BasketProductResponse> addProduct(
             @RequestBody @Valid AddBasketProductRequest request
     ) {
-        BasketProductResponse response = new BasketProductResponse();
-        response.setProductId(request.getProductId());
-        response.setQuantity(request.getQuantity());
-        response.setLastModifiedDate(Instant.now());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(basketProductService.addProduct(request));
     }
 
 }

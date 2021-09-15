@@ -12,7 +12,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 public class ApplicationConfig {
 
     @Bean
-    public Docket demoApi() {
+    public Docket docket() {
         // remove basic error controller from swagger
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()

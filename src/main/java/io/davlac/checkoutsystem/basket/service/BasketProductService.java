@@ -5,6 +5,7 @@ import io.davlac.checkoutsystem.basket.repository.BasketProductRepository;
 import io.davlac.checkoutsystem.basket.service.dto.AddBasketProductRequest;
 import io.davlac.checkoutsystem.basket.service.dto.BasketProductResponse;
 import io.davlac.checkoutsystem.basket.service.mapper.BasketProductMapper;
+import io.davlac.checkoutsystem.product.controller.error.NotFoundException;
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +34,12 @@ public class BasketProductService {
 
     @Transactional
     public BasketProductResponse patchByProductId(final long productId, final int quantity) {
-        BasketProductResponse response = new BasketProductResponse();
-        response.setProductId(productId);
-        response.setQuantity(quantity);
-        return response;
+        Product product = productService.getEntityById(productId);
+        BasketProduct basketProduct = basketProductRepository.findByProduct(product)
+                .orElseThrow(() -> new NotFoundException(String.format("No basket product found with product ID = '%d'", productId)));
+        basketProductMapper.updateEntity(product, quantity, basketProduct);
+        BasketProduct basketProductUpdated = basketProductRepository.save(basketProduct);
+        return basketProductMapper.toDto(basketProductUpdated);
     }
 
     private static BasketProduct createOrUpdateBasketProduct(Optional<BasketProduct> basketProductOpt,

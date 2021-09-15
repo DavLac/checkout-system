@@ -7,9 +7,7 @@ import io.davlac.checkoutsystem.basket.service.dto.AddBasketProductRequest;
 import io.davlac.checkoutsystem.basket.service.dto.BasketProductResponse;
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.repository.ProductRepository;
-import io.davlac.checkoutsystem.product.service.dto.CreateProductRequest;
 import io.davlac.checkoutsystem.utils.JsonUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,13 +26,11 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 import static io.davlac.checkoutsystem.utils.JsonUtils.asJsonString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -257,9 +253,41 @@ class BasketControllerIntTest {
         assertEquals(basketProductSaved.getProductId(), response.getProductId());
         assertEquals(QUANTITY, response.getQuantity());
         assertNotNull(response.getLastModifiedDate());
-        assertTrue(basketProductSaved.getLastModifiedDate().isBefore(response.getLastModifiedDate()));
 
         // database assertions
         assertEquals(QUANTITY, basketProductRepository.findByProduct(savedProduct).get().getQuantity());
+    }
+
+    @Test
+    void patchByProductId_withNotExistingBasketProduct_shouldThrowNotFoundError() throws Exception {
+        mockMvc.perform(patch(BASKET_PRODUCTS_URI + "/" + savedProduct.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("quantity", String.valueOf(QUANTITY)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void patchByProductId_withNotExistingProduct_shouldThrowNotFoundError() throws Exception {
+        mockMvc.perform(patch(BASKET_PRODUCTS_URI + "/456789")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("quantity", String.valueOf(QUANTITY)))
+                .andExpect(status().isNotFound());
+    }
+
+    public static Stream<Arguments> patchByProductIdBadRequestParameters() {
+        return Stream.of(
+                Arguments.of("Quantity 0", PRODUCT_ID, 0),
+                Arguments.of("Quantity negative", PRODUCT_ID, -10)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("patchByProductIdBadRequestParameters")
+    void patchByProductId_withErrors_shouldThrowBadRequest(String test, long productId, int quantity) throws Exception {
+        mockMvc.perform(
+                patch(BASKET_PRODUCTS_URI + "/" + productId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("quantity", String.valueOf(quantity)))
+                .andExpect(status().isBadRequest());
     }
 }

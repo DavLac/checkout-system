@@ -31,6 +31,14 @@ public class BasketProductService {
         return basketProductMapper.toDto(basketProductSaved);
     }
 
+    @Transactional
+    public BasketProductResponse patchByProductId(final long productId, final int quantity) {
+        BasketProductResponse response = new BasketProductResponse();
+        response.setProductId(productId);
+        response.setQuantity(quantity);
+        return response;
+    }
+
     private static BasketProduct createOrUpdateBasketProduct(Optional<BasketProduct> basketProductOpt,
                                                              Product product,
                                                              int quantity) {

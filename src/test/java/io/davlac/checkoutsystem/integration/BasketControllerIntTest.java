@@ -34,6 +34,8 @@ import java.util.stream.Stream;
 import static io.davlac.checkoutsystem.utils.JsonUtils.asJsonString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -52,7 +54,8 @@ class BasketControllerIntTest {
     private static final String NAME_2 = "product_name-2";
     private static final String DESCRIPTION_2 = "description-2";
     private static final double PRICE_2 = 45.67;
-    public static final long PRODUCT_ID = 123L;
+    private static final long PRODUCT_ID = 123L;
+    private static final int QUANTITY = 10;
 
     @Autowired
     private MockMvc mockMvc;
@@ -233,5 +236,30 @@ class BasketControllerIntTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(request)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Transactional
+    void patchByProductId_withExistingProduct_shouldUpdateProductQuantity() throws Exception {
+        BasketProduct basketProductSaved = basketProductRepository.save(
+                new BasketProduct(savedProduct, 5)
+        );
+
+        ResultActions resultActions = mockMvc.perform(
+                patch(BASKET_PRODUCTS_URI + "/" + savedProduct.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("quantity", String.valueOf(QUANTITY)))
+                .andExpect(status().isOk());
+
+        BasketProductResponse response = (BasketProductResponse) jsonUtils
+                .deserializeResult(resultActions, BasketProductResponse.class);
+
+        assertEquals(basketProductSaved.getProductId(), response.getProductId());
+        assertEquals(QUANTITY, response.getQuantity());
+        assertNotNull(response.getLastModifiedDate());
+        assertTrue(basketProductSaved.getLastModifiedDate().isBefore(response.getLastModifiedDate()));
+
+        // database assertions
+        assertEquals(QUANTITY, basketProductRepository.findByProduct(savedProduct).get().getQuantity());
     }
 }

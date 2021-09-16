@@ -40,7 +40,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static io.davlac.checkoutsystem.utils.DateUtils.assertInstantsEqualByMilli;
 import static io.davlac.checkoutsystem.utils.JsonUtils.asJsonString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -157,19 +156,6 @@ class ProductDealControllerIntTest {
                                                 .build()
                                 )
                                 .bundles(Set.of())
-                                .build()),
-                Arguments.of("Deal with 2 different products at 70%",
-                        CreateProductDealRequestTest.builder()
-                                .discount(
-                                        DiscountRequestTest.builder()
-                                                .discountPercentage(70)
-                                                .totalDiscountedItems(1)
-                                                .totalFullPriceItems(0)
-                                                .build()
-                                )
-                                .bundles(Set.of(
-                                        new BundleRequestTest(70)
-                                ))
                                 .build())
         );
     }
@@ -404,7 +390,7 @@ class ProductDealControllerIntTest {
                         CreateProductDealRequest.builder()
                                 .withProductId(PRODUCT_ID)
                                 .build()),
-                Arguments.of("Grouped discount and bundle in the same time",
+                Arguments.of("Discount and bundle in the same time",
                         CreateProductDealRequest.builder()
                                 .withProductId(PRODUCT_ID)
                                 .withDiscount(
@@ -433,6 +419,61 @@ class ProductDealControllerIntTest {
         mockMvc.perform(post(PRODUCT_DEALS_URI)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(req)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void create_withAlreadyExistingDiscount_shouldThrowBadRequest() throws Exception {
+        // create product deals
+        ProductDeal productDeal = new ProductDeal();
+        productDeal.setProduct(savedProduct);
+        productDeal.setDiscount(new Discount(1, 1, 50));
+        productDealRepository.save(productDeal);
+
+        CreateProductDealRequest request = CreateProductDealRequest.builder()
+                .withProductId(savedProduct.getId())
+                .withDiscount(
+                        DiscountRequest.builder()
+                                .withDiscountPercentage(0)
+                                .withTotalFullPriceItems(3)
+                                .withTotalDiscountedItems(3)
+                                .build()
+                )
+                .build();
+
+        mockMvc.perform(post(PRODUCT_DEALS_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void create_withAlreadyExistingBundle_shouldThrowBadRequest() throws Exception {
+        // create product deals
+        ProductDeal productDeal = new ProductDeal();
+        productDeal.setProduct(savedProduct);
+        Bundle bundle = new Bundle();
+        bundle.setProductDeal(productDeal);
+        bundle.setProduct(savedProduct2);
+        bundle.setDiscountPercentage(0);
+        productDeal.setBundles(Set.of(bundle));
+        productDealRepository.save(productDeal);
+
+        CreateProductDealRequest request = CreateProductDealRequest.builder()
+                .withProductId(savedProduct.getId())
+                .withBundles(
+                        Set.of(
+                                BundleRequest.builder()
+                                        .withProductId(savedProduct2.getId())
+                                        .withDiscountPercentage(100)
+                                        .build()
+                        )
+                )
+                .build();
+
+        mockMvc.perform(post(PRODUCT_DEALS_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request)))
                 .andExpect(status().isBadRequest());
     }
 

@@ -50,18 +50,33 @@ public class ProductDealService {
                 .collect(Collectors.toList());
     }
 
-    private static void checkProductDealRequest(CreateProductDealRequest request) {
+    private void checkProductDealRequest(CreateProductDealRequest request) {
         if (CollectionUtils.isEmpty(request.getBundles()) && request.getDiscount() == null) {
             throw new BadRequestException("Discount and bundles are empty or null");
         }
 
-        if (!CollectionUtils.isEmpty(request.getBundles()) &&
-                request.getDiscount() != null &&
-                request.getDiscount().getTotalDiscountedItems() > 1 &&
-                request.getDiscount().getTotalFullPriceItems() > 0) {
-            throw new BadRequestException("Product deal cannot have a grouped discount and a bundle in the same time");
+        if (!CollectionUtils.isEmpty(request.getBundles()) && request.getDiscount() != null) {
+            throw new BadRequestException("Product deal cannot have a discount and a bundle in the same time");
+        }
+
+        List<ProductDealResponse> productDeals = getAllByProductId(request.getProductId());
+        if (request.getDiscount() != null && isProductDealsHasDiscount(productDeals)) {
+            throw new BadRequestException("Product deal can have only one discount by product");
+        }
+
+        if (!CollectionUtils.isEmpty(request.getBundles()) && isProductDealsHasBundle(productDeals)) {
+            throw new BadRequestException("Product deal can have only one bundle by product");
         }
     }
 
+    private static boolean isProductDealsHasDiscount(List<ProductDealResponse> productDeals) {
+        return productDeals.stream()
+                .anyMatch(deal -> deal.getDiscount() != null);
+    }
+
+    private static boolean isProductDealsHasBundle(List<ProductDealResponse> productDeals) {
+        return productDeals.stream()
+                .anyMatch(deal -> !deal.getBundles().isEmpty());
+    }
 
 }

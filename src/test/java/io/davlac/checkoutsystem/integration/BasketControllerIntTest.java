@@ -8,6 +8,10 @@ import io.davlac.checkoutsystem.basket.service.dto.BasketProductResponse;
 import io.davlac.checkoutsystem.basket.service.dto.TotalBasketProductResponse;
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.repository.ProductRepository;
+import io.davlac.checkoutsystem.productdeal.model.Bundle;
+import io.davlac.checkoutsystem.productdeal.model.Discount;
+import io.davlac.checkoutsystem.productdeal.model.ProductDeal;
+import io.davlac.checkoutsystem.productdeal.repository.ProductDealRepository;
 import io.davlac.checkoutsystem.utils.JsonUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,9 +32,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static io.davlac.checkoutsystem.utils.JsonUtils.asJsonString;
+import static io.davlac.checkoutsystem.utils.NumbersUtils.roundUpBy2Decimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -42,20 +48,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = BasketProductController.class)
 @AutoConfigureMockMvc
 @EnableWebMvc
+@Transactional
 @ComponentScan("io.davlac.checkoutsystem")
 class BasketControllerIntTest {
 
     private static final String BASKET_PRODUCTS_URI = "/basket-products";
     private static final String ADD_PRODUCTS_URI = "/add";
     private static final String CALCULATE_TOTAL_PRODUCTS_URI = "/calculate-total";
+    private static final String PRODUCTS_URI = "/products";
     private static final String NAME = "product_name";
     private static final String DESCRIPTION = "description";
     private static final double PRICE = 12.34;
+    private static final double PRICE_10 = 10;
     private static final String NAME_2 = "product_name-2";
     private static final String DESCRIPTION_2 = "description-2";
     private static final double PRICE_2 = 45.67;
     private static final long PRODUCT_ID = 123L;
     private static final int QUANTITY = 10;
+    private static final int QUANTITY_5 = 5;
+    private static final int QUANTITY_2 = 2;
+    private static final int PERCENT_70 = 70;
 
     @Autowired
     private MockMvc mockMvc;
@@ -68,6 +80,9 @@ class BasketControllerIntTest {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ProductDealRepository productDealRepository;
 
     Product savedProduct = new Product();
     Product savedProduct2 = new Product();
@@ -121,7 +136,6 @@ class BasketControllerIntTest {
     }
 
     @Test
-    @Transactional
     void addProduct_withAlreadyFilledBasket_shouldAddQuantityProduct() throws Exception {
         int quantityBefore = 10;
         BasketProduct basketProductBefore = new BasketProduct(savedProduct, quantityBefore);
@@ -152,7 +166,6 @@ class BasketControllerIntTest {
     }
 
     @Test
-    @Transactional
     void addProduct_withAlreadyFilledBasketAnd2ndProduct_shouldAddQuantityProductToTheRightOne() throws Exception {
         int quantityBefore = 5;
         BasketProduct basketProductBefore = new BasketProduct(savedProduct, quantityBefore);
@@ -239,14 +252,13 @@ class BasketControllerIntTest {
     }
 
     @Test
-    @Transactional
     void patchByProductId_withExistingProduct_shouldUpdateProductQuantity() throws Exception {
         BasketProduct basketProductSaved = basketProductRepository.save(
                 new BasketProduct(savedProduct, 5)
         );
 
         ResultActions resultActions = mockMvc.perform(
-                patch(BASKET_PRODUCTS_URI + "/" + savedProduct.getId())
+                patch(BASKET_PRODUCTS_URI + PRODUCTS_URI + "/" + savedProduct.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("quantity", String.valueOf(QUANTITY)))
                 .andExpect(status().isOk());
@@ -264,7 +276,7 @@ class BasketControllerIntTest {
 
     @Test
     void patchByProductId_withNotExistingBasketProduct_shouldThrowNotFoundError() throws Exception {
-        mockMvc.perform(patch(BASKET_PRODUCTS_URI + "/" + savedProduct.getId())
+        mockMvc.perform(patch(BASKET_PRODUCTS_URI + PRODUCTS_URI + "/" + savedProduct.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("quantity", String.valueOf(QUANTITY)))
                 .andExpect(status().isNotFound());
@@ -272,7 +284,7 @@ class BasketControllerIntTest {
 
     @Test
     void patchByProductId_withNotExistingProduct_shouldThrowNotFoundError() throws Exception {
-        mockMvc.perform(patch(BASKET_PRODUCTS_URI + "/456789")
+        mockMvc.perform(patch(BASKET_PRODUCTS_URI + PRODUCTS_URI + "/456789")
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("quantity", String.valueOf(QUANTITY)))
                 .andExpect(status().isNotFound());
@@ -289,19 +301,18 @@ class BasketControllerIntTest {
     @MethodSource("patchByProductIdBadRequestParameters")
     void patchByProductId_withErrors_shouldThrowBadRequest(String test, long productId, int quantity) throws Exception {
         mockMvc.perform(
-                patch(BASKET_PRODUCTS_URI + "/" + productId)
+                patch(BASKET_PRODUCTS_URI + PRODUCTS_URI + "/" + productId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("quantity", String.valueOf(quantity)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    @Transactional
     void deleteByProductId_withExistingProduct_shouldDeleteBasketProduct() throws Exception {
         basketProductRepository.save(new BasketProduct(savedProduct, 5));
         int basketBefore = basketProductRepository.findAll().size();
 
-        mockMvc.perform(delete(BASKET_PRODUCTS_URI + "/" + savedProduct.getId())
+        mockMvc.perform(delete(BASKET_PRODUCTS_URI + PRODUCTS_URI + "/" + savedProduct.getId())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
@@ -314,20 +325,22 @@ class BasketControllerIntTest {
 
     @Test
     void deleteByProductId_withNotExistingBasketProduct_shouldThrowNotFoundError() throws Exception {
-        mockMvc.perform(delete(BASKET_PRODUCTS_URI + "/" + savedProduct.getId())
+        mockMvc.perform(delete(BASKET_PRODUCTS_URI + PRODUCTS_URI + "/" + savedProduct.getId())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void deleteByProductId_withNotExistingProduct_shouldThrowNotFoundError() throws Exception {
-        mockMvc.perform(delete(BASKET_PRODUCTS_URI + "/456789")
+        mockMvc.perform(delete(BASKET_PRODUCTS_URI + PRODUCTS_URI + "/456789")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void calculateTotalPrice_withExistingProductBaskets_shouldTotalPriceAndProductDetails() throws Exception {
+    void calculateTotalPrice_withExistingProductBasketsAndNoDeals_shouldReturnTotalPriceAndProductDetails() throws Exception {
+        basketProductRepository.save(new BasketProduct(savedProduct, QUANTITY_5));
+
         ResultActions resultActions = mockMvc.perform(
                 post(BASKET_PRODUCTS_URI + CALCULATE_TOTAL_PRODUCTS_URI)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -336,10 +349,155 @@ class BasketControllerIntTest {
         TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
                 .deserializeResult(resultActions, TotalBasketProductResponse.class);
 
-        assertEquals(10.0, response.getTotalPrice());
-        assertEquals(10, response.getProductDetails().get(savedProduct.getId()).getQuantity());
-        assertEquals(10, response.getProductDetails().get(savedProduct2.getId()).getQuantity());
-        assertEquals(2, response.getProductDetails().get(savedProduct.getId()).getBasketProductDeals().size());
-        assertEquals(2, response.getProductDetails().get(savedProduct2.getId()).getBasketProductDeals().size());
+        assertEquals(PRICE * QUANTITY_5, response.getTotalPrice());
+        assertEquals(1, response.getProductDetails().size());
+        assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
+        assertEquals(QUANTITY_5, response.getProductDetails().get(0).getQuantity());
+        assertEquals(PRICE * QUANTITY_5, response.getProductDetails().get(0).getProductTotalPrice());
+        assertEquals(PRICE * QUANTITY_5, response.getProductDetails().get(0).getProductTotalPriceDiscounted());
+        assertEquals(0, response.getProductDetails().get(0).getProductDeals().size());
+    }
+
+    @Test
+    void calculateTotalPrice_with2ProductBasketsAndNoDeals_shouldReturnTotalPriceAndProductDetails() throws Exception {
+        basketProductRepository.save(new BasketProduct(savedProduct, QUANTITY_5));
+        basketProductRepository.save(new BasketProduct(savedProduct2, QUANTITY_2));
+
+        ResultActions resultActions = mockMvc.perform(
+                post(BASKET_PRODUCTS_URI + CALCULATE_TOTAL_PRODUCTS_URI)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
+                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+
+        double product1Total = PRICE * QUANTITY_5;
+        double product2Total = PRICE_2 * QUANTITY_2;
+        assertEquals(roundUpBy2Decimals(product1Total + product2Total), response.getTotalPrice());
+        assertEquals(2, response.getProductDetails().size());
+
+        assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
+        assertEquals(QUANTITY_5, response.getProductDetails().get(0).getQuantity());
+        assertEquals(product1Total, response.getProductDetails().get(0).getProductTotalPrice());
+        assertEquals(product1Total, response.getProductDetails().get(0).getProductTotalPriceDiscounted());
+        assertEquals(0, response.getProductDetails().get(0).getProductDeals().size());
+
+        assertEquals(savedProduct2.getId(), response.getProductDetails().get(1).getProductId());
+        assertEquals(QUANTITY_2, response.getProductDetails().get(1).getQuantity());
+        assertEquals(product2Total, response.getProductDetails().get(1).getProductTotalPrice());
+        assertEquals(product2Total, response.getProductDetails().get(1).getProductTotalPriceDiscounted());
+        assertEquals(0, response.getProductDetails().get(1).getProductDeals().size());
+    }
+
+    @Test
+    void calculateTotalPrice_with1ProductBasketsAndDeals_shouldReturnTotalPriceDiscounted() throws Exception {
+        // init database
+        savedProduct.setPrice(PRICE_10);
+        basketProductRepository.save(new BasketProduct(savedProduct, QUANTITY_5));
+
+        // create a product deal
+        ProductDeal productDeal = new ProductDeal();
+        productDeal.setProduct(savedProduct);
+        // product 70% discount
+        productDeal.setDiscount(new Discount(0, 1, PERCENT_70));
+        ProductDeal productDealSaved = productDealRepository.save(productDeal);
+
+        ResultActions resultActions = mockMvc.perform(
+                post(BASKET_PRODUCTS_URI + CALCULATE_TOTAL_PRODUCTS_URI)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
+                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+
+        double productTotal = PRICE_10 * QUANTITY_5;
+        double productTotalDiscount = productTotal * (100 - PERCENT_70) / 100;
+        assertEquals(productTotalDiscount, response.getTotalPrice());
+        assertEquals(1, response.getProductDetails().size());
+        assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
+        assertEquals(QUANTITY_5, response.getProductDetails().get(0).getQuantity());
+        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPrice());
+        assertEquals(productTotalDiscount, response.getProductDetails().get(0).getProductTotalPriceDiscounted());
+        assertEquals(1, response.getProductDetails().get(0).getProductDeals().size());
+        assertEquals(productDealSaved.getId(), response.getProductDetails().get(0).getProductDeals().get(0).getId());
+    }
+
+    @Test
+    void calculateTotalPrice_with1ProductBuy5And2Free_shouldReturnTotalPriceDiscounted() throws Exception {
+        // init database
+        savedProduct.setPrice(PRICE_10);
+        basketProductRepository.save(new BasketProduct(savedProduct, QUANTITY_5));
+
+        // create a product deal
+        ProductDeal productDeal = new ProductDeal();
+        productDeal.setProduct(savedProduct);
+        // buy 5, 2 free
+        productDeal.setDiscount(new Discount(3, 2, 100));
+        ProductDeal productDealSaved = productDealRepository.save(productDeal);
+
+        ResultActions resultActions = mockMvc.perform(
+                post(BASKET_PRODUCTS_URI + CALCULATE_TOTAL_PRODUCTS_URI)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
+                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+
+        double productTotal = PRICE_10 * QUANTITY_5;
+        double productTotalDiscount = PRICE_10 * 3;
+        assertEquals(productTotalDiscount, response.getTotalPrice());
+        assertEquals(1, response.getProductDetails().size());
+        assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
+        assertEquals(QUANTITY_5, response.getProductDetails().get(0).getQuantity());
+        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPrice());
+        assertEquals(productTotalDiscount, response.getProductDetails().get(0).getProductTotalPriceDiscounted());
+        assertEquals(1, response.getProductDetails().get(0).getProductDeals().size());
+        assertEquals(productDealSaved.getId(), response.getProductDetails().get(0).getProductDeals().get(0).getId());
+    }
+
+    @Test
+    void calculateTotalPrice_with1ProductBuy5And2FreeNotEnoughQuantity_shouldNotApplyDiscount() throws Exception {
+        // init database
+        savedProduct.setPrice(PRICE_10);
+        basketProductRepository.save(new BasketProduct(savedProduct, QUANTITY_5));
+
+        // create a product deal
+        ProductDeal productDeal = new ProductDeal();
+        productDeal.setProduct(savedProduct);
+        // buy 6, 2 free
+        productDeal.setDiscount(new Discount(4, 2, 100));
+        ProductDeal productDealSaved = productDealRepository.save(productDeal);
+
+        ResultActions resultActions = mockMvc.perform(
+                post(BASKET_PRODUCTS_URI + CALCULATE_TOTAL_PRODUCTS_URI)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
+                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+
+        double productTotal = PRICE_10 * QUANTITY_5;
+        assertEquals(productTotal, response.getTotalPrice());
+        assertEquals(1, response.getProductDetails().size());
+        assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
+        assertEquals(QUANTITY_5, response.getProductDetails().get(0).getQuantity());
+        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPrice());
+        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPriceDiscounted());
+        assertEquals(1, response.getProductDetails().get(0).getProductDeals().size());
+        assertEquals(productDealSaved.getId(), response.getProductDetails().get(0).getProductDeals().get(0).getId());
+    }
+
+    @Test
+    void calculateTotalPrice_withNoProducts_shouldReturnTotalPriceZero() throws Exception {
+        ResultActions resultActions = mockMvc.perform(
+                post(BASKET_PRODUCTS_URI + CALCULATE_TOTAL_PRODUCTS_URI)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
+                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+
+        assertEquals(0, response.getTotalPrice());
+        assertEquals(0, response.getProductDetails().size());
     }
 }

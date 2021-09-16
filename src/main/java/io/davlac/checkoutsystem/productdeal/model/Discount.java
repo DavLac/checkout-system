@@ -1,6 +1,8 @@
 package io.davlac.checkoutsystem.productdeal.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -23,6 +25,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 public class Discount {
 
     @Id
@@ -44,4 +47,12 @@ public class Discount {
 
     @LastModifiedDate
     private Instant lastModifiedDate;
+
+    public Discount(@NotNull @Min(0) Integer totalFullPriceItems,
+                    @NotNull @Min(1) Integer totalDiscountedItems,
+                    @NotNull @Min(0) @Max(100) Integer discountPercentage) {
+        this.totalFullPriceItems = totalFullPriceItems;
+        this.totalDiscountedItems = totalDiscountedItems;
+        this.discountPercentage = discountPercentage;
+    }
 }

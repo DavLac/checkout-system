@@ -12,7 +12,10 @@ import java.util.List;
 @ToString
 public class BasketProductDetailsResponse {
 
-    private Integer quantity;
-    private List<ProductDealResponse> basketProductDeals;
+    private long productId;
+    private int quantity;
+    private double productTotalPrice;
+    private double productTotalPriceDiscounted;
+    private List<ProductDealResponse> productDeals;
 
 }

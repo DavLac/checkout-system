@@ -1,6 +1,7 @@
 package io.davlac.checkoutsystem.basket.controller;
 
 import io.davlac.checkoutsystem.basket.service.BasketProductService;
+import io.davlac.checkoutsystem.basket.service.CalculationBasketProductService;
 import io.davlac.checkoutsystem.basket.service.dto.AddBasketProductRequest;
 import io.davlac.checkoutsystem.basket.service.dto.BasketProductResponse;
 import io.davlac.checkoutsystem.basket.service.dto.TotalBasketProductResponse;
@@ -29,6 +30,7 @@ import javax.validation.constraints.Positive;
 public class BasketProductController {
 
     private final BasketProductService basketProductService;
+    private final CalculationBasketProductService calculationBasketProductService;
 
     @PostMapping("add")
     @Operation(description = "Add product to basket")
@@ -43,7 +45,7 @@ public class BasketProductController {
         return ResponseEntity.ok(basketProductService.addProduct(request));
     }
 
-    @PatchMapping("{productId}")
+    @PatchMapping("products/{productId}")
     @Operation(description = "Amend basket product by product ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "400", description = "Bad request"),
@@ -57,14 +59,14 @@ public class BasketProductController {
         return ResponseEntity.ok(basketProductService.patchByProductId(productId, quantity));
     }
 
-    @DeleteMapping("{productId}")
+    @DeleteMapping("products/{productId}")
     @Operation(description = "Delete basket product by product ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Product basket deleted"),
             @ApiResponse(responseCode = "404", description = "Product or product basket not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<Void> deleteProductId(@PathVariable long productId) {
+    public ResponseEntity<Void> deleteByProductId(@PathVariable long productId) {
         basketProductService.deleteByProductId(productId);
         return ResponseEntity.noContent().build();
     }
@@ -77,7 +79,7 @@ public class BasketProductController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<TotalBasketProductResponse> calculateTotal() {
-        return ResponseEntity.ok(basketProductService.calculateTotalPrice());
+        return ResponseEntity.ok(calculationBasketProductService.calculateTotalPrice());
     }
 
 }

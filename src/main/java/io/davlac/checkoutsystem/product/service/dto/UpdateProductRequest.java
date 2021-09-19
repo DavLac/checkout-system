@@ -13,8 +13,8 @@ import java.util.stream.Stream;
 
 @Getter
 @ToString
-@JsonDeserialize(builder = PatchProductRequest.Builder.class)
-public final class PatchProductRequest {
+@JsonDeserialize(builder = UpdateProductRequest.Builder.class)
+public final class UpdateProductRequest {
 
     @Size(min = 3, max = 100)
     private final String description;
@@ -23,13 +23,13 @@ public final class PatchProductRequest {
     @Digits(integer = 10, fraction = 2)
     private final Double price;
 
-    public PatchProductRequest(PatchProductRequest.Builder builder) {
+    public UpdateProductRequest(UpdateProductRequest.Builder builder) {
         this.description = builder.description;
         this.price = builder.price;
     }
 
-    public static PatchProductRequest.Builder builder() {
-        return new PatchProductRequest.Builder();
+    public static UpdateProductRequest.Builder builder() {
+        return new UpdateProductRequest.Builder();
     }
 
     @JsonPOJOBuilder
@@ -47,8 +47,8 @@ public final class PatchProductRequest {
             return this;
         }
 
-        public PatchProductRequest build() {
-            return new PatchProductRequest(this);
+        public UpdateProductRequest build() {
+            return new UpdateProductRequest(this);
         }
     }
 

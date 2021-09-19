@@ -2,7 +2,7 @@ package io.davlac.checkoutsystem.product.controller;
 
 import io.davlac.checkoutsystem.product.service.ProductService;
 import io.davlac.checkoutsystem.product.service.dto.CreateProductRequest;
-import io.davlac.checkoutsystem.product.service.dto.PatchProductRequest;
+import io.davlac.checkoutsystem.product.service.dto.UpdateProductRequest;
 import io.davlac.checkoutsystem.product.service.dto.ProductResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -77,8 +77,8 @@ public class ProductController {
     })
     public ResponseEntity<ProductResponse> patchById(
             @PathVariable long id,
-            @RequestBody @Valid PatchProductRequest patchProductRequest) {
-        return ResponseEntity.ok(productService.patchById(id, patchProductRequest));
+            @RequestBody @Valid UpdateProductRequest updateProductRequest) {
+        return ResponseEntity.ok(productService.patchById(id, updateProductRequest));
     }
 
 }

@@ -2,7 +2,7 @@ package io.davlac.checkoutsystem.product.service.mapper;
 
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.service.dto.CreateProductRequest;
-import io.davlac.checkoutsystem.product.service.dto.PatchProductRequest;
+import io.davlac.checkoutsystem.product.service.dto.UpdateProductRequest;
 import io.davlac.checkoutsystem.product.service.dto.ProductResponse;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InjectionStrategy;
@@ -28,6 +28,6 @@ public interface ProductMapper {
     )
     @Mapping(source = "request.price", target = "price")
     @Mapping(source = "request.description", target = "description")
-    void updateEntity(PatchProductRequest request, @MappingTarget Product entity);
+    void updateEntity(UpdateProductRequest request, @MappingTarget Product entity);
 
 }

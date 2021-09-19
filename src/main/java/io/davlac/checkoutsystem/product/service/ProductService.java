@@ -5,7 +5,7 @@ import io.davlac.checkoutsystem.product.controller.error.NotFoundException;
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.repository.ProductRepository;
 import io.davlac.checkoutsystem.product.service.dto.CreateProductRequest;
-import io.davlac.checkoutsystem.product.service.dto.PatchProductRequest;
+import io.davlac.checkoutsystem.product.service.dto.UpdateProductRequest;
 import io.davlac.checkoutsystem.product.service.dto.ProductResponse;
 import io.davlac.checkoutsystem.product.service.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse patchById(final long id, @NotNull final PatchProductRequest request) {
+    public ProductResponse patchById(final long id, @NotNull final UpdateProductRequest request) {
         if (request.isEmpty()) {
             throw new BadRequestException("Body is empty");
         }

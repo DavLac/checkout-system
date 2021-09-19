@@ -4,7 +4,7 @@ import io.davlac.checkoutsystem.product.controller.ProductController;
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.repository.ProductRepository;
 import io.davlac.checkoutsystem.product.service.dto.CreateProductRequest;
-import io.davlac.checkoutsystem.product.service.dto.PatchProductRequest;
+import io.davlac.checkoutsystem.product.service.dto.UpdateProductRequest;
 import io.davlac.checkoutsystem.product.service.dto.ProductResponse;
 import io.davlac.checkoutsystem.utils.JsonUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -265,7 +265,7 @@ class ProductControllerIntTest {
     void patchById_withGoodData_shouldReturnPatchedProduct() throws Exception {
         Product savedProduct = productRepository.save(product);
 
-        PatchProductRequest request = PatchProductRequest.builder()
+        UpdateProductRequest request = UpdateProductRequest.builder()
                 .withDescription(DESCRIPTION_2)
                 .withPrice(PRICE_2)
                 .build();
@@ -291,7 +291,7 @@ class ProductControllerIntTest {
     void patchById_withOnlyDescription_shouldNotChangePrice() throws Exception {
         Product savedProduct = productRepository.save(product);
 
-        PatchProductRequest request = PatchProductRequest.builder()
+        UpdateProductRequest request = UpdateProductRequest.builder()
                 .withDescription(DESCRIPTION_2)
                 .build();
 
@@ -316,7 +316,7 @@ class ProductControllerIntTest {
     void patchById_withOnlyPrice_shouldNotChangeDescription() throws Exception {
         Product savedProduct = productRepository.save(product);
 
-        PatchProductRequest request = PatchProductRequest.builder()
+        UpdateProductRequest request = UpdateProductRequest.builder()
                 .withPrice(PRICE_2)
                 .build();
 
@@ -341,42 +341,42 @@ class ProductControllerIntTest {
         return Stream.of(
                 Arguments.of(
                         "Empty",
-                        PatchProductRequest.builder()
+                        UpdateProductRequest.builder()
                                 .build()
                 ),
                 Arguments.of(
                         "Too short description",
-                        PatchProductRequest.builder()
+                        UpdateProductRequest.builder()
                                 .withDescription(RandomStringUtils.randomAlphabetic(2))
                                 .build()
                 ),
                 Arguments.of(
                         "Too long description",
-                        PatchProductRequest.builder()
+                        UpdateProductRequest.builder()
                                 .withDescription(RandomStringUtils.randomAlphabetic(101))
                                 .build()
                 ),
                 Arguments.of(
                         "Price too many decimals",
-                        PatchProductRequest.builder()
+                        UpdateProductRequest.builder()
                                 .withPrice(PRICE_TOO_MANY_DECIMALS)
                                 .build()
                 ),
                 Arguments.of(
                         "Price negative",
-                        PatchProductRequest.builder()
+                        UpdateProductRequest.builder()
                                 .withPrice(PRICE_NEGATIVE)
                                 .build()
                 ),
                 Arguments.of(
                         "Price zero",
-                        PatchProductRequest.builder()
+                        UpdateProductRequest.builder()
                                 .withPrice(PRICE_ZERO)
                                 .build()
                 ),
                 Arguments.of(
                         "Price too big",
-                        PatchProductRequest.builder()
+                        UpdateProductRequest.builder()
                                 .withPrice(PRICE_TOO_MANY_INT)
                                 .build()
                 )
@@ -386,21 +386,21 @@ class ProductControllerIntTest {
     @ParameterizedTest
     @MethodSource("patchProductBadRequestParameters")
     void patchById_withErrors_shouldThrowBadRequest(String test,
-                                                    PatchProductRequest patchProductRequest) throws Exception {
+                                                    UpdateProductRequest updateProductRequest) throws Exception {
         mockMvc.perform(patch(PRODUCTS_URI + "/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(patchProductRequest)))
+                .content(asJsonString(updateProductRequest)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void patchById_withNotExistingProduct_shouldThrowNotFound() throws Exception {
-        PatchProductRequest patchProductRequest = PatchProductRequest.builder()
+        UpdateProductRequest updateProductRequest = UpdateProductRequest.builder()
                 .withPrice(PRICE)
                 .build();
         mockMvc.perform(patch(PRODUCTS_URI + "/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(patchProductRequest)))
+                .content(asJsonString(updateProductRequest)))
                 .andExpect(status().isNotFound());
     }
 }

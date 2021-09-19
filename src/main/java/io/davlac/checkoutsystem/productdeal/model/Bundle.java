@@ -3,6 +3,7 @@ package io.davlac.checkoutsystem.productdeal.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.davlac.checkoutsystem.product.model.Product;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -29,6 +30,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 public class Bundle {
 
     @Id
@@ -50,4 +52,10 @@ public class Bundle {
 
     @LastModifiedDate
     private Instant lastModifiedDate;
+
+    public Bundle(Product product, Integer discountPercentage, ProductDeal productDeal) {
+        this.product = product;
+        this.discountPercentage = discountPercentage;
+        this.productDeal = productDeal;
+    }
 }

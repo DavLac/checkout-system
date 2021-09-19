@@ -40,7 +40,7 @@ public abstract class ProductDealMapper {
 
     @Named("productIdToProduct")
     public Product productIdToProduct(Long productId) {
-        return productService.getEntityById(productId);
+        return new Product(productId);
     }
 
     @Named("productToProductId")

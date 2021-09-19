@@ -45,4 +45,11 @@ public class Product {
 
     @LastModifiedDate
     private Instant lastModifiedDate;
+
+    public Product() {
+    }
+
+    public Product(Long id) {
+        this.id = id;
+    }
 }

@@ -58,6 +58,7 @@ class ProductDealControllerIntTest {
 
     private static final String PRODUCT_DEALS_URI = "/product-deals";
     private static final long PRODUCT_ID = 123L;
+    private static final long PRODUCT_ID_2 = 456;
     private static final String NAME = "product_name";
     private static final String DESCRIPTION = "description";
     private static final double PRICE = 12.34;
@@ -357,7 +358,7 @@ class ProductDealControllerIntTest {
                                 .withBundles(
                                         Set.of(
                                                 BundleRequest.builder()
-                                                        .withProductId(PRODUCT_ID)
+                                                        .withProductId(PRODUCT_ID_2)
                                                         .build()
                                         )
                                 )
@@ -368,7 +369,7 @@ class ProductDealControllerIntTest {
                                 .withBundles(
                                         Set.of(
                                                 BundleRequest.builder()
-                                                        .withProductId(PRODUCT_ID)
+                                                        .withProductId(PRODUCT_ID_2)
                                                         .withDiscountPercentage(-10)
                                                         .build()
                                         )
@@ -380,7 +381,7 @@ class ProductDealControllerIntTest {
                                 .withBundles(
                                         Set.of(
                                                 BundleRequest.builder()
-                                                        .withProductId(PRODUCT_ID)
+                                                        .withProductId(PRODUCT_ID_2)
                                                         .withDiscountPercentage(101)
                                                         .build()
                                         )
@@ -390,21 +391,14 @@ class ProductDealControllerIntTest {
                         CreateProductDealRequest.builder()
                                 .withProductId(PRODUCT_ID)
                                 .build()),
-                Arguments.of("Discount and bundle in the same time",
+                Arguments.of("Request product in Bundle",
                         CreateProductDealRequest.builder()
                                 .withProductId(PRODUCT_ID)
-                                .withDiscount(
-                                        DiscountRequest.builder()
-                                                .withDiscountPercentage(0)
-                                                .withTotalFullPriceItems(3)
-                                                .withTotalDiscountedItems(3)
-                                                .build()
-                                )
                                 .withBundles(
                                         Set.of(
                                                 BundleRequest.builder()
                                                         .withProductId(PRODUCT_ID)
-                                                        .withDiscountPercentage(100)
+                                                        .withDiscountPercentage(10)
                                                         .build()
                                         )
                                 )

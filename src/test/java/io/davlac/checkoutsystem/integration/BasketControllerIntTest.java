@@ -39,6 +39,7 @@ import static io.davlac.checkoutsystem.utils.JsonUtils.asJsonString;
 import static io.davlac.checkoutsystem.utils.NumbersUtils.roundUpBy2Decimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -64,9 +65,10 @@ class BasketControllerIntTest {
     private static final String DESCRIPTION_2 = "description-2";
     private static final double PRICE_2 = 45.67;
     private static final long PRODUCT_ID = 123L;
-    private static final int QUANTITY = 10;
+    private static final int QUANTITY_10 = 10;
     private static final int QUANTITY_5 = 5;
     private static final int QUANTITY_2 = 2;
+    private static final int QUANTITY_1 = 1;
     private static final int PERCENT_70 = 70;
 
     @Autowired
@@ -260,25 +262,25 @@ class BasketControllerIntTest {
         ResultActions resultActions = mockMvc.perform(
                 patch(BASKET_PRODUCTS_URI + PRODUCTS_URI + "/" + savedProduct.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("quantity", String.valueOf(QUANTITY)))
+                        .param("quantity", String.valueOf(QUANTITY_10)))
                 .andExpect(status().isOk());
 
         BasketProductResponse response = (BasketProductResponse) jsonUtils
                 .deserializeResult(resultActions, BasketProductResponse.class);
 
         assertEquals(basketProductSaved.getProductId(), response.getProductId());
-        assertEquals(QUANTITY, response.getQuantity());
+        assertEquals(QUANTITY_10, response.getQuantity());
         assertNotNull(response.getLastModifiedDate());
 
         // database assertions
-        assertEquals(QUANTITY, basketProductRepository.findByProduct(savedProduct).get().getQuantity());
+        assertEquals(QUANTITY_10, basketProductRepository.findByProduct(savedProduct).get().getQuantity());
     }
 
     @Test
     void patchByProductId_withNotExistingBasketProduct_shouldThrowNotFoundError() throws Exception {
         mockMvc.perform(patch(BASKET_PRODUCTS_URI + PRODUCTS_URI + "/" + savedProduct.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .param("quantity", String.valueOf(QUANTITY)))
+                .param("quantity", String.valueOf(QUANTITY_10)))
                 .andExpect(status().isNotFound());
     }
 
@@ -286,7 +288,7 @@ class BasketControllerIntTest {
     void patchByProductId_withNotExistingProduct_shouldThrowNotFoundError() throws Exception {
         mockMvc.perform(patch(BASKET_PRODUCTS_URI + PRODUCTS_URI + "/456789")
                 .contentType(MediaType.APPLICATION_JSON)
-                .param("quantity", String.valueOf(QUANTITY)))
+                .param("quantity", String.valueOf(QUANTITY_10)))
                 .andExpect(status().isNotFound());
     }
 
@@ -353,8 +355,8 @@ class BasketControllerIntTest {
         assertEquals(1, response.getProductDetails().size());
         assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
         assertEquals(QUANTITY_5, response.getProductDetails().get(0).getQuantity());
-        assertEquals(PRICE * QUANTITY_5, response.getProductDetails().get(0).getProductTotalPrice());
-        assertEquals(PRICE * QUANTITY_5, response.getProductDetails().get(0).getProductTotalPriceDiscounted());
+        assertEquals(PRICE * QUANTITY_5, response.getProductDetails().get(0).getProductTotalPriceBeforeDiscounts());
+        assertEquals(PRICE * QUANTITY_5, response.getProductDetails().get(0).getProductTotalPriceAfterDiscount());
         assertEquals(0, response.getProductDetails().get(0).getProductDeals().size());
     }
 
@@ -378,14 +380,14 @@ class BasketControllerIntTest {
 
         assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
         assertEquals(QUANTITY_5, response.getProductDetails().get(0).getQuantity());
-        assertEquals(product1Total, response.getProductDetails().get(0).getProductTotalPrice());
-        assertEquals(product1Total, response.getProductDetails().get(0).getProductTotalPriceDiscounted());
+        assertEquals(product1Total, response.getProductDetails().get(0).getProductTotalPriceBeforeDiscounts());
+        assertEquals(product1Total, response.getProductDetails().get(0).getProductTotalPriceAfterDiscount());
         assertEquals(0, response.getProductDetails().get(0).getProductDeals().size());
 
         assertEquals(savedProduct2.getId(), response.getProductDetails().get(1).getProductId());
         assertEquals(QUANTITY_2, response.getProductDetails().get(1).getQuantity());
-        assertEquals(product2Total, response.getProductDetails().get(1).getProductTotalPrice());
-        assertEquals(product2Total, response.getProductDetails().get(1).getProductTotalPriceDiscounted());
+        assertEquals(product2Total, response.getProductDetails().get(1).getProductTotalPriceBeforeDiscounts());
+        assertEquals(product2Total, response.getProductDetails().get(1).getProductTotalPriceAfterDiscount());
         assertEquals(0, response.getProductDetails().get(1).getProductDeals().size());
     }
 
@@ -416,8 +418,8 @@ class BasketControllerIntTest {
         assertEquals(1, response.getProductDetails().size());
         assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
         assertEquals(QUANTITY_5, response.getProductDetails().get(0).getQuantity());
-        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPrice());
-        assertEquals(productTotalDiscount, response.getProductDetails().get(0).getProductTotalPriceDiscounted());
+        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPriceBeforeDiscounts());
+        assertEquals(productTotalDiscount, response.getProductDetails().get(0).getProductTotalPriceAfterDiscount());
         assertEquals(1, response.getProductDetails().get(0).getProductDeals().size());
         assertEquals(productDealSaved.getId(), response.getProductDetails().get(0).getProductDeals().get(0).getId());
     }
@@ -449,14 +451,14 @@ class BasketControllerIntTest {
         assertEquals(1, response.getProductDetails().size());
         assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
         assertEquals(QUANTITY_5, response.getProductDetails().get(0).getQuantity());
-        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPrice());
-        assertEquals(productTotalDiscount, response.getProductDetails().get(0).getProductTotalPriceDiscounted());
+        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPriceBeforeDiscounts());
+        assertEquals(productTotalDiscount, response.getProductDetails().get(0).getProductTotalPriceAfterDiscount());
         assertEquals(1, response.getProductDetails().get(0).getProductDeals().size());
         assertEquals(productDealSaved.getId(), response.getProductDetails().get(0).getProductDeals().get(0).getId());
     }
 
     @Test
-    void calculateTotalPrice_with1ProductBuy5And2FreeNotEnoughQuantity_shouldNotApplyDiscount() throws Exception {
+    void calculateTotalPrice_with1ProductBuy6And2FreeNotEnoughQuantity_shouldNotApplyDiscount() throws Exception {
         // init database
         savedProduct.setPrice(PRICE_10);
         basketProductRepository.save(new BasketProduct(savedProduct, QUANTITY_5));
@@ -481,10 +483,308 @@ class BasketControllerIntTest {
         assertEquals(1, response.getProductDetails().size());
         assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
         assertEquals(QUANTITY_5, response.getProductDetails().get(0).getQuantity());
-        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPrice());
-        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPriceDiscounted());
+        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPriceBeforeDiscounts());
+        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPriceAfterDiscount());
         assertEquals(1, response.getProductDetails().get(0).getProductDeals().size());
         assertEquals(productDealSaved.getId(), response.getProductDetails().get(0).getProductDeals().get(0).getId());
+    }
+
+    @Test
+    void calculateTotalPrice_withBundleBuy1AnotherFree_shouldApplyBundle() throws Exception {
+        // init database
+        savedProduct.setPrice(PRICE_10);
+        savedProduct2.setPrice(PRICE_2);
+        basketProductRepository.save(new BasketProduct(savedProduct, QUANTITY_1));
+        basketProductRepository.save(new BasketProduct(savedProduct2, QUANTITY_1));
+
+        // create a product deal
+        ProductDeal productDeal = new ProductDeal();
+        productDeal.setProduct(savedProduct);
+        // buy 1 product, product2 free
+        productDeal.setBundles(Set.of(
+                new Bundle(savedProduct2, 100, productDeal)
+        ));
+        ProductDeal productDealSaved = productDealRepository.save(productDeal);
+
+        ResultActions resultActions = mockMvc.perform(
+                post(BASKET_PRODUCTS_URI + CALCULATE_TOTAL_PRODUCTS_URI)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
+                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+
+        double productTotal = PRICE_10;
+        assertEquals(productTotal, response.getTotalPrice());
+        assertEquals(2, response.getProductDetails().size());
+
+        assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
+        assertEquals(QUANTITY_1, response.getProductDetails().get(0).getQuantity());
+        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPriceBeforeDiscounts());
+        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPriceAfterDiscount());
+        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPriceAfterBundle());
+        assertEquals(1, response.getProductDetails().get(0).getProductDeals().size());
+        assertEquals(productDealSaved.getId(), response.getProductDetails().get(0).getProductDeals().get(0).getId());
+
+        assertEquals(savedProduct2.getId(), response.getProductDetails().get(1).getProductId());
+        assertEquals(QUANTITY_1, response.getProductDetails().get(1).getQuantity());
+        assertEquals(PRICE_2, response.getProductDetails().get(1).getProductTotalPriceBeforeDiscounts());
+        assertEquals(PRICE_2, response.getProductDetails().get(1).getProductTotalPriceAfterDiscount());
+        assertEquals(0, response.getProductDetails().get(1).getProductTotalPriceAfterBundle());
+        assertEquals(0, response.getProductDetails().get(1).getProductDeals().size());
+    }
+
+    @Test
+    void calculateTotalPrice_withBundleWith2Products_shouldApplyBundle2Times() throws Exception {
+        // init database
+        savedProduct.setPrice(PRICE_10);
+        savedProduct2.setPrice(PRICE_2);
+        basketProductRepository.save(new BasketProduct(savedProduct, QUANTITY_2));
+        basketProductRepository.save(new BasketProduct(savedProduct2, QUANTITY_5));
+
+        // create a product deal
+        ProductDeal productDeal = new ProductDeal();
+        productDeal.setProduct(savedProduct);
+        // buy 1 product, product2 50%
+        productDeal.setBundles(Set.of(
+                new Bundle(savedProduct2, 50, productDeal)
+        ));
+        ProductDeal productDealSaved = productDealRepository.save(productDeal);
+
+        ResultActions resultActions = mockMvc.perform(
+                post(BASKET_PRODUCTS_URI + CALCULATE_TOTAL_PRODUCTS_URI)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
+                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+
+        // product1 full price *2 + product2 full price *3 + 50% *2
+        double productTotal = PRICE_10 * QUANTITY_2 + PRICE_2 * 3 + (PRICE_2 * QUANTITY_2) / 2;
+        assertEquals(productTotal, response.getTotalPrice());
+        assertEquals(2, response.getProductDetails().size());
+
+        assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
+        assertEquals(QUANTITY_2, response.getProductDetails().get(0).getQuantity());
+        assertEquals(PRICE_10 * QUANTITY_2, response.getProductDetails().get(0).getProductTotalPriceBeforeDiscounts());
+        assertEquals(PRICE_10 * QUANTITY_2, response.getProductDetails().get(0).getProductTotalPriceAfterDiscount());
+        assertEquals(PRICE_10 * QUANTITY_2, response.getProductDetails().get(0).getProductTotalPriceAfterBundle());
+        assertEquals(1, response.getProductDetails().get(0).getProductDeals().size());
+        assertEquals(productDealSaved.getId(), response.getProductDetails().get(0).getProductDeals().get(0).getId());
+
+        assertEquals(savedProduct2.getId(), response.getProductDetails().get(1).getProductId());
+        assertEquals(QUANTITY_5, response.getProductDetails().get(1).getQuantity());
+        assertEquals(roundUpBy2Decimals(PRICE_2 * QUANTITY_5), response.getProductDetails().get(1).getProductTotalPriceBeforeDiscounts());
+        assertEquals(roundUpBy2Decimals(PRICE_2 * QUANTITY_5), response.getProductDetails().get(1).getProductTotalPriceAfterDiscount());
+        assertEquals(roundUpBy2Decimals(PRICE_2 * 3 + (PRICE_2 * QUANTITY_2) / 2), response.getProductDetails().get(1).getProductTotalPriceAfterBundle());
+        assertEquals(0, response.getProductDetails().get(1).getProductDeals().size());
+    }
+
+    @Test
+    void calculateTotalPrice_withBundleWithoutOtherProduct_shouldNotApplyBundle() throws Exception {
+        // init database
+        savedProduct.setPrice(PRICE_10);
+        basketProductRepository.save(new BasketProduct(savedProduct, QUANTITY_2));
+
+        // create a product deal
+        ProductDeal productDeal = new ProductDeal();
+        productDeal.setProduct(savedProduct);
+        // buy 1 product, product2 50%
+        productDeal.setBundles(Set.of(
+                new Bundle(savedProduct2, 50, productDeal)
+        ));
+        ProductDeal productDealSaved = productDealRepository.save(productDeal);
+
+        ResultActions resultActions = mockMvc.perform(
+                post(BASKET_PRODUCTS_URI + CALCULATE_TOTAL_PRODUCTS_URI)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
+                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+
+        double productTotal = PRICE_10 * QUANTITY_2;
+        assertEquals(productTotal, response.getTotalPrice());
+        assertEquals(1, response.getProductDetails().size());
+
+        assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
+        assertEquals(QUANTITY_2, response.getProductDetails().get(0).getQuantity());
+        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPriceBeforeDiscounts());
+        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPriceAfterDiscount());
+        assertEquals(productTotal, response.getProductDetails().get(0).getProductTotalPriceAfterBundle());
+        assertEquals(1, response.getProductDetails().get(0).getProductDeals().size());
+        assertEquals(productDealSaved.getId(), response.getProductDetails().get(0).getProductDeals().get(0).getId());
+    }
+
+    @Test
+    void calculateTotalPrice_withBundleBiggerDiscountThanDiscount_shouldApplyOnlyBundle() throws Exception {
+        // init database
+        savedProduct.setPrice(PRICE_10);
+        savedProduct2.setPrice(PRICE_2);
+        basketProductRepository.save(new BasketProduct(savedProduct, QUANTITY_1));
+        basketProductRepository.save(new BasketProduct(savedProduct2, QUANTITY_1));
+
+        // create a product deal
+        ProductDeal productDeal = new ProductDeal();
+        productDeal.setProduct(savedProduct);
+        // buy 1 product, product2 50%
+        productDeal.setBundles(Set.of(
+                new Bundle(savedProduct2, 50, productDeal)
+        ));
+        ProductDeal productDealSaved = productDealRepository.save(productDeal);
+
+        ProductDeal productDeal2 = new ProductDeal();
+        productDeal2.setProduct(savedProduct2);
+        // direct discount 25%
+        productDeal2.setDiscount(new Discount(0, 1, 25));
+        productDealRepository.save(productDeal2);
+
+        ResultActions resultActions = mockMvc.perform(
+                post(BASKET_PRODUCTS_URI + CALCULATE_TOTAL_PRODUCTS_URI)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
+                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+
+        // product1 full price + product2 50%
+        double productTotal = PRICE_10 * QUANTITY_1 + PRICE_2 * QUANTITY_1 / 2;
+        assertEquals(roundUpBy2Decimals(productTotal), response.getTotalPrice());
+        assertEquals(2, response.getProductDetails().size());
+
+        assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
+        assertEquals(QUANTITY_1, response.getProductDetails().get(0).getQuantity());
+        assertEquals(PRICE_10 * QUANTITY_1, response.getProductDetails().get(0).getProductTotalPriceBeforeDiscounts());
+        assertEquals(PRICE_10 * QUANTITY_1, response.getProductDetails().get(0).getProductTotalPriceAfterDiscount());
+        assertEquals(PRICE_10 * QUANTITY_1, response.getProductDetails().get(0).getProductTotalPriceAfterBundle());
+        assertEquals(1, response.getProductDetails().get(0).getProductDeals().size());
+        assertEquals(productDealSaved.getId(), response.getProductDetails().get(0).getProductDeals().get(0).getId());
+        assertNotNull(response.getProductDetails().get(0).getProductDeals().get(0).getBundles());
+
+        assertEquals(savedProduct2.getId(), response.getProductDetails().get(1).getProductId());
+        assertEquals(QUANTITY_1, response.getProductDetails().get(1).getQuantity());
+        assertEquals(roundUpBy2Decimals(PRICE_2 * QUANTITY_1), response.getProductDetails().get(1).getProductTotalPriceBeforeDiscounts());
+        assertEquals(roundUpBy2Decimals(PRICE_2 * QUANTITY_1 * 0.75), response.getProductDetails().get(1).getProductTotalPriceAfterDiscount());
+        assertEquals(roundUpBy2Decimals(PRICE_2 * QUANTITY_1 / 2), response.getProductDetails().get(1).getProductTotalPriceAfterBundle());
+        assertEquals(1, response.getProductDetails().get(1).getProductDeals().size());
+        assertNotNull(response.getProductDetails().get(1).getProductDeals().get(0).getDiscount());
+    }
+
+    @Test
+    void calculateTotalPrice_withBundleWith3Products_shouldApplyGoodDiscountPercentageByProduct() throws Exception {
+        // init database
+        savedProduct.setPrice(PRICE_10);
+        savedProduct2.setPrice(PRICE_2);
+        basketProductRepository.save(new BasketProduct(savedProduct, QUANTITY_1));
+        basketProductRepository.save(new BasketProduct(savedProduct2, QUANTITY_1));
+
+        // create a product deal
+        ProductDeal productDeal = new ProductDeal();
+        productDeal.setProduct(savedProduct);
+        // buy 1 product, product2 50%
+        productDeal.setBundles(Set.of(
+                new Bundle(savedProduct2, 50, productDeal)
+        ));
+        ProductDeal productDealSaved = productDealRepository.save(productDeal);
+
+        ProductDeal productDeal2 = new ProductDeal();
+        productDeal2.setProduct(savedProduct2);
+        // direct discount 25%
+        productDeal2.setDiscount(new Discount(0, 1, 25));
+        productDealRepository.save(productDeal2);
+
+        ResultActions resultActions = mockMvc.perform(
+                post(BASKET_PRODUCTS_URI + CALCULATE_TOTAL_PRODUCTS_URI)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
+                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+
+        // product1 full price + product2 50%
+        double productTotal = PRICE_10 * QUANTITY_1 + PRICE_2 * QUANTITY_1 / 2;
+        assertEquals(roundUpBy2Decimals(productTotal), response.getTotalPrice());
+        assertEquals(2, response.getProductDetails().size());
+
+        assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
+        assertEquals(QUANTITY_1, response.getProductDetails().get(0).getQuantity());
+        assertEquals(PRICE_10 * QUANTITY_1, response.getProductDetails().get(0).getProductTotalPriceBeforeDiscounts());
+        assertEquals(PRICE_10 * QUANTITY_1, response.getProductDetails().get(0).getProductTotalPriceAfterDiscount());
+        assertEquals(PRICE_10 * QUANTITY_1, response.getProductDetails().get(0).getProductTotalPriceAfterBundle());
+        assertEquals(1, response.getProductDetails().get(0).getProductDeals().size());
+        assertEquals(productDealSaved.getId(), response.getProductDetails().get(0).getProductDeals().get(0).getId());
+        assertNotNull(response.getProductDetails().get(0).getProductDeals().get(0).getBundles());
+
+        assertEquals(savedProduct2.getId(), response.getProductDetails().get(1).getProductId());
+        assertEquals(QUANTITY_1, response.getProductDetails().get(1).getQuantity());
+        assertEquals(roundUpBy2Decimals(PRICE_2 * QUANTITY_1), response.getProductDetails().get(1).getProductTotalPriceBeforeDiscounts());
+        assertEquals(roundUpBy2Decimals(PRICE_2 * QUANTITY_1 * 0.75), response.getProductDetails().get(1).getProductTotalPriceAfterDiscount());
+        assertEquals(roundUpBy2Decimals(PRICE_2 * QUANTITY_1 / 2), response.getProductDetails().get(1).getProductTotalPriceAfterBundle());
+        assertEquals(1, response.getProductDetails().get(1).getProductDeals().size());
+        assertNotNull(response.getProductDetails().get(1).getProductDeals().get(0).getDiscount());
+    }
+
+    @Test
+    void calculateTotalPrice_withDiscountBiggerDiscountThanBundle_shouldApplyOnlyDiscount() throws Exception {
+        // init database
+        savedProduct.setPrice(PRICE_10);
+        savedProduct2.setPrice(PRICE_2);
+        Product product3 = new Product();
+        product3.setName(NAME_2);
+        product3.setPrice(PRICE);
+        Product savedProduct3 = productRepository.save(product3);
+        basketProductRepository.save(new BasketProduct(savedProduct, QUANTITY_2));
+        basketProductRepository.save(new BasketProduct(savedProduct2, QUANTITY_2));
+        basketProductRepository.save(new BasketProduct(savedProduct3, QUANTITY_5));
+
+        // create a product deal
+        ProductDeal productDeal = new ProductDeal();
+        productDeal.setProduct(savedProduct);
+        // buy 1 product, product2 50%, product3 25%
+        productDeal.setBundles(Set.of(
+                new Bundle(savedProduct2, 50, productDeal),
+                new Bundle(savedProduct3, 25, productDeal)
+        ));
+        ProductDeal productDealSaved = productDealRepository.save(productDeal);
+
+        ResultActions resultActions = mockMvc.perform(
+                post(BASKET_PRODUCTS_URI + CALCULATE_TOTAL_PRODUCTS_URI)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
+                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+
+        // product1 full price + product2 50% + product3 25% (2)
+        double productTotal = PRICE_10 * QUANTITY_2 +
+                PRICE_2 * QUANTITY_2 / 2 +
+                PRICE * QUANTITY_2 * 0.75 + PRICE * 3;
+        assertEquals(roundUpBy2Decimals(productTotal), response.getTotalPrice());
+        assertEquals(3, response.getProductDetails().size());
+
+        assertEquals(savedProduct.getId(), response.getProductDetails().get(0).getProductId());
+        assertEquals(QUANTITY_2, response.getProductDetails().get(0).getQuantity());
+        assertEquals(PRICE_10 * QUANTITY_2, response.getProductDetails().get(0).getProductTotalPriceBeforeDiscounts());
+        assertEquals(PRICE_10 * QUANTITY_2, response.getProductDetails().get(0).getProductTotalPriceAfterDiscount());
+        assertEquals(PRICE_10 * QUANTITY_2, response.getProductDetails().get(0).getProductTotalPriceAfterBundle());
+        assertEquals(1, response.getProductDetails().get(0).getProductDeals().size());
+        assertEquals(productDealSaved.getId(), response.getProductDetails().get(0).getProductDeals().get(0).getId());
+        assertNotNull(response.getProductDetails().get(0).getProductDeals().get(0).getBundles());
+        assertNull(response.getProductDetails().get(0).getProductDeals().get(0).getDiscount());
+
+        assertEquals(savedProduct2.getId(), response.getProductDetails().get(1).getProductId());
+        assertEquals(QUANTITY_2, response.getProductDetails().get(1).getQuantity());
+        assertEquals(roundUpBy2Decimals(PRICE_2 * QUANTITY_2), response.getProductDetails().get(1).getProductTotalPriceBeforeDiscounts());
+        assertEquals(roundUpBy2Decimals(PRICE_2 * QUANTITY_2), response.getProductDetails().get(1).getProductTotalPriceAfterDiscount());
+        assertEquals(roundUpBy2Decimals(PRICE_2 * QUANTITY_2 / 2), response.getProductDetails().get(1).getProductTotalPriceAfterBundle());
+        assertEquals(0, response.getProductDetails().get(1).getProductDeals().size());
+
+        assertEquals(savedProduct3.getId(), response.getProductDetails().get(2).getProductId());
+        assertEquals(QUANTITY_5, response.getProductDetails().get(2).getQuantity());
+        assertEquals(roundUpBy2Decimals(PRICE * QUANTITY_5), response.getProductDetails().get(2).getProductTotalPriceBeforeDiscounts());
+        assertEquals(roundUpBy2Decimals(PRICE * QUANTITY_5), response.getProductDetails().get(2).getProductTotalPriceAfterDiscount());
+        assertEquals(roundUpBy2Decimals(PRICE * QUANTITY_2 * 0.75 + PRICE * 3), response.getProductDetails().get(2).getProductTotalPriceAfterBundle());
+        assertEquals(0, response.getProductDetails().get(2).getProductDeals().size());
     }
 
     @Test

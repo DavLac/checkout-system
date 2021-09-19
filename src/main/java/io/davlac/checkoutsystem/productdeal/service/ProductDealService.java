@@ -55,17 +55,19 @@ public class ProductDealService {
             throw new BadRequestException("Discount and bundles are empty or null");
         }
 
-        if (!CollectionUtils.isEmpty(request.getBundles()) && request.getDiscount() != null) {
-            throw new BadRequestException("Product deal cannot have a discount and a bundle in the same time");
+        // check bundles
+        if (!CollectionUtils.isEmpty(request.getBundles()) && isBundleContainsProductDeal(request)) {
+            throw new BadRequestException("A bundle cannot contain the deal product");
         }
 
         List<ProductDealResponse> productDeals = getAllByProductId(request.getProductId());
-        if (request.getDiscount() != null && isProductDealsHasDiscount(productDeals)) {
-            throw new BadRequestException("Product deal can have only one discount by product");
-        }
-
         if (!CollectionUtils.isEmpty(request.getBundles()) && isProductDealsHasBundle(productDeals)) {
             throw new BadRequestException("Product deal can have only one bundle by product");
+        }
+
+        // check discounts
+        if (request.getDiscount() != null && isProductDealsHasDiscount(productDeals)) {
+            throw new BadRequestException("Product deal can have only one discount by product");
         }
     }
 
@@ -77,6 +79,11 @@ public class ProductDealService {
     private static boolean isProductDealsHasBundle(List<ProductDealResponse> productDeals) {
         return productDeals.stream()
                 .anyMatch(deal -> !deal.getBundles().isEmpty());
+    }
+
+    private static boolean isBundleContainsProductDeal(CreateProductDealRequest request) {
+        return request.getBundles().stream()
+                .anyMatch(bundle -> bundle.getProductId().equals(request.getProductId()));
     }
 
 }

@@ -25,6 +25,7 @@ public abstract class BasketProductMapper {
 
     @Mapping(target = "productId", source = "basketProduct.productId")
     @Mapping(target = "quantity", source = "basketProduct.quantity")
+    @Mapping(target = "productPrice", source = "basketProduct.product.price")
     public abstract BasketProductDetailsResponse toDetailsResponse(BasketProduct basketProduct,
                                                                    List<ProductDealResponse> productDeals);
 }

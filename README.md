@@ -97,9 +97,10 @@ POST /product-deals
 - If a bundle and a discount target the same product, the smallest price will be chosen for the total price
 
 ## To improve
+- Discounts with currency (no just by percentage)
 - Active/desactive discount
 - Add discount expiring date
-- Add multiple bundles
+- Add multiple bundles for the same product
 - Implement an external database instead of H2 in-memory
 
 ## Jacoco test coverage

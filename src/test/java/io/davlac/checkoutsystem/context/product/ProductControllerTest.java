@@ -4,6 +4,7 @@ import io.davlac.checkoutsystem.product.controller.ProductController;
 import io.davlac.checkoutsystem.product.service.ProductService;
 import io.davlac.checkoutsystem.product.service.dto.CreateProductRequest;
 import io.davlac.checkoutsystem.product.service.dto.ProductResponse;
+import io.davlac.checkoutsystem.product.service.dto.UpdateProductRequest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,8 +37,6 @@ class ProductControllerTest {
     private static final String NAME = "product_name";
     private static final String DESCRIPTION = "description";
     private static final double PRICE = 12.34;
-    private static final String DESCRIPTION_2 = "description-2";
-    private static final double PRICE_2 = 45.67;
     private static final Instant LAST_MODIFIED_DATE = Instant.now();
 
     private static final double PRICE_TOO_MANY_DECIMALS = 12.456;
@@ -174,10 +174,113 @@ class ProductControllerTest {
 
     @ParameterizedTest
     @MethodSource("createProductBadRequestParameters")
-    void create_withNoName_shouldFailValidation(String test,
-                                                CreateProductRequest request,
-                                                String errorMessage) {
+    void create_withError_shouldFailValidation(String test,
+                                               CreateProductRequest request,
+                                               String errorMessage) {
         Set<ConstraintViolation<CreateProductRequest>> violations = validator.validate(request);
+        assertEquals(1, violations.size());
+        assertEquals(errorMessage, violations.stream().findFirst().get().getMessage());
+    }
+
+    @Test
+    void getById_withExistingProduct_shouldReturnProduct() {
+        when(productService.getById(ID)).thenReturn(productResponse);
+
+        ResponseEntity<ProductResponse> response = productController.getById(ID);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        assertEquals(ID, response.getBody().getId());
+        assertEquals(NAME, response.getBody().getName());
+        assertEquals(PRICE, response.getBody().getPrice());
+        assertEquals(DESCRIPTION, response.getBody().getDescription());
+        assertEquals(LAST_MODIFIED_DATE, response.getBody().getLastModifiedDate());
+    }
+
+    @Test
+    void deleteById_withExistingProduct_shouldDeleteProduct() {
+        doNothing().when(productService).deleteById(ID);
+
+        ResponseEntity<Void> response = productController.deleteById(ID);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
+
+    @Test
+    void patchById_withGoodRequest_shouldPatchProduct() {
+        UpdateProductRequest request = UpdateProductRequest.builder()
+                .withDescription(DESCRIPTION)
+                .withPrice(PRICE)
+                .build();
+
+        when(productService.patchById(ID, request)).thenReturn(productResponse);
+
+        ResponseEntity<ProductResponse> response = productController.patchById(ID, request);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        assertEquals(ID, response.getBody().getId());
+        assertEquals(NAME, response.getBody().getName());
+        assertEquals(request.getPrice(), response.getBody().getPrice());
+        assertEquals(request.getDescription(), response.getBody().getDescription());
+        assertEquals(LAST_MODIFIED_DATE, response.getBody().getLastModifiedDate());
+    }
+
+    public static Stream<Arguments> patchProductBadRequestParameters() {
+        return Stream.of(
+                Arguments.of(
+                        "Too short description",
+                        UpdateProductRequest.builder()
+                                .withPrice(PRICE)
+                                .withDescription(RandomStringUtils.randomAlphabetic(2))
+                                .build(),
+                        "size must be between 3 and 100"
+                ),
+                Arguments.of(
+                        "Too long description",
+                        UpdateProductRequest.builder()
+                                .withPrice(PRICE)
+                                .withDescription(RandomStringUtils.randomAlphabetic(101))
+                                .build(),
+                        "size must be between 3 and 100"
+                ),
+                Arguments.of(
+                        "Price too many decimals",
+                        UpdateProductRequest.builder()
+                                .withPrice(PRICE_TOO_MANY_DECIMALS)
+                                .build(),
+                        "numeric value out of bounds (<10 digits>.<2 digits> expected)"
+                ),
+                Arguments.of(
+                        "Price negative",
+                        UpdateProductRequest.builder()
+                                .withPrice(PRICE_NEGATIVE)
+                                .build(),
+                        "must be greater than 0"
+                ),
+                Arguments.of(
+                        "Price zero",
+                        UpdateProductRequest.builder()
+                                .withPrice(PRICE_ZERO)
+                                .build(),
+                        "must be greater than 0"
+                ),
+                Arguments.of(
+                        "Price too big",
+                        UpdateProductRequest.builder()
+                                .withPrice(PRICE_TOO_MANY_INT)
+                                .build(),
+                        "numeric value out of bounds (<10 digits>.<2 digits> expected)"
+                )
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("patchProductBadRequestParameters")
+    void patchById_withError_shouldFailValidation(String test,
+                                                  UpdateProductRequest request,
+                                                  String errorMessage) {
+        Set<ConstraintViolation<UpdateProductRequest>> violations = validator.validate(request);
         assertEquals(1, violations.size());
         assertEquals(errorMessage, violations.stream().findFirst().get().getMessage());
     }

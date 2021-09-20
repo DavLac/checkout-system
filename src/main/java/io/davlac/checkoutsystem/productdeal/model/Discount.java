@@ -48,9 +48,9 @@ public class Discount {
     @LastModifiedDate
     private Instant lastModifiedDate;
 
-    public Discount(@NotNull @Min(0) Integer totalFullPriceItems,
-                    @NotNull @Min(1) Integer totalDiscountedItems,
-                    @NotNull @Min(0) @Max(100) Integer discountPercentage) {
+    public Discount(Integer totalFullPriceItems,
+                    Integer totalDiscountedItems,
+                    Integer discountPercentage) {
         this.totalFullPriceItems = totalFullPriceItems;
         this.totalDiscountedItems = totalDiscountedItems;
         this.discountPercentage = discountPercentage;

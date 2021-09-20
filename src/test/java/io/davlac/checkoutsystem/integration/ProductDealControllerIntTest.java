@@ -390,18 +390,6 @@ class ProductDealControllerIntTest {
                 Arguments.of("Deal without discount and bundle",
                         CreateProductDealRequest.builder()
                                 .withProductId(PRODUCT_ID)
-                                .build()),
-                Arguments.of("Request product in Bundle",
-                        CreateProductDealRequest.builder()
-                                .withProductId(PRODUCT_ID)
-                                .withBundles(
-                                        Set.of(
-                                                BundleRequest.builder()
-                                                        .withProductId(PRODUCT_ID)
-                                                        .withDiscountPercentage(10)
-                                                        .build()
-                                        )
-                                )
                                 .build())
         );
     }
@@ -459,6 +447,66 @@ class ProductDealControllerIntTest {
                         Set.of(
                                 BundleRequest.builder()
                                         .withProductId(savedProduct2.getId())
+                                        .withDiscountPercentage(100)
+                                        .build()
+                        )
+                )
+                .build();
+
+        mockMvc.perform(post(PRODUCT_DEALS_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void create_withNotExistingProduct_shouldThrowNotFound() throws Exception {
+        CreateProductDealRequest request = CreateProductDealRequest.builder()
+                .withProductId(PRODUCT_ID)
+                .withBundles(
+                        Set.of(
+                                BundleRequest.builder()
+                                        .withProductId(PRODUCT_ID_2)
+                                        .withDiscountPercentage(100)
+                                        .build()
+                        )
+                )
+                .build();
+
+        mockMvc.perform(post(PRODUCT_DEALS_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void create_withNotExistingProductBundle_shouldThrowNotFound() throws Exception {
+        CreateProductDealRequest request = CreateProductDealRequest.builder()
+                .withProductId(savedProduct.getId())
+                .withBundles(
+                        Set.of(
+                                BundleRequest.builder()
+                                        .withProductId(PRODUCT_ID_2)
+                                        .withDiscountPercentage(100)
+                                        .build()
+                        )
+                )
+                .build();
+
+        mockMvc.perform(post(PRODUCT_DEALS_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void create_withSameProductDealAndBundle_shouldThrowBadRequest() throws Exception {
+        CreateProductDealRequest request = CreateProductDealRequest.builder()
+                .withProductId(savedProduct.getId())
+                .withBundles(
+                        Set.of(
+                                BundleRequest.builder()
+                                        .withProductId(savedProduct.getId())
                                         .withDiscountPercentage(100)
                                         .build()
                         )

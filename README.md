@@ -24,10 +24,6 @@ Before connecting to the admin console, fill these informations in the form :
 - user : `user`
 - password : `password`
 
-## Database model
-
-![db model](/src/main/resources/static/img/database-model.png)
-
 ## Endpoints
 
 You can find all checkpoints on swagger url : `http://localhost:8080/swagger-ui/#/`
@@ -37,6 +33,74 @@ You can find all checkpoints on swagger url : `http://localhost:8080/swagger-ui/
 - GET /products/{id}
 - PATCH /products/{id} (price & description)
 - DELETE /products/{id}
+
+### Product deals
+- POST /product-deals
+- DELETE /product-deals/{id}
+
+### Basket products
+- POST /basket-products/add
+- PATCH /basket-products/products/{productId}
+- DELETE /basket-products/products/{productId}
+- POST /basket-products/calculate-total
+
+## Product deals helper
+### Grouped discount
+- Buy 5, 2 50%
+```
+POST /product-deals
+{
+  "discount": {
+    "discountPercentage": 50,
+    "totalDiscountedItems": 2,
+    "totalFullPriceItems": 3
+  },
+  "productId": 123
+}
+```
+### Direct discount
+- Product discount = 25%
+```
+POST /product-deals
+{
+  "discount": {
+    "discountPercentage": 25,
+    "totalDiscountedItems": 1,
+    "totalFullPriceItems": 0
+  },
+  "productId": 123
+}
+```
+### Bundles
+- Buy 1 laptop, 1 mouse and 1 keyboard free
+```
+POST /product-deals
+{
+  "bundles": [
+    {
+      "discountPercentage": 100,
+      "productId": [mouse ID]
+    },
+    {
+      "discountPercentage": 100,
+      "productId": [keyboard ID]
+    }
+  ],
+  "productId": [laptop ID]
+}
+```
+
+## Special cases
+- Only 1 discount allowed by product
+- Only 1 bundle allowed by product
+- Each product max quantity in a bundle = 1. We cannot add the product himself in a bundle
+- If a bundle and a discount target the same product, the smallest price will be chosen for the total price
+
+## To improve
+- Active/desactive discount
+- Add discount expiring date
+- Add multiple bundles
+- Implement an external database instead of H2 in-memory
 
 ## Jacoco test coverage
 Command line :

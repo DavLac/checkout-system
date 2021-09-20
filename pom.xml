@@ -12,7 +12,7 @@
 
     <groupId>io.davlac</groupId>
     <artifactId>checkout-system</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <name>checkout-system</name>
     <description>Checkout system</description>
 

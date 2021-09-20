@@ -47,6 +47,6 @@ Jacoco report location :  `target/jacoco`
 
 ### Test coverage :
 (models and DTOs excluded)
-- Overall : in progress...
-- Unit tests : in progress...
+- Unit tests : 98%
 - Integration tests : 97%
+- Merged : 99%

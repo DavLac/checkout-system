@@ -110,6 +110,9 @@
                     <excludes>
                         <exclude>**/model/*</exclude>
                         <exclude>**/service/dto/**</exclude>
+                        <exclude>**/CheckoutSystemApplication*</exclude>
+                        <exclude>**/config/**</exclude>
+                        <exclude>**/controller/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>

@@ -1,46 +1,24 @@
 package io.davlac.checkoutsystem.basket.service;
 
-import io.davlac.checkoutsystem.basket.model.BasketProduct;
 import io.davlac.checkoutsystem.basket.service.dto.BasketProductDetailsResponse;
-import io.davlac.checkoutsystem.basket.service.mapper.BasketProductMapper;
-import io.davlac.checkoutsystem.product.model.Product;
-import io.davlac.checkoutsystem.productdeal.service.ProductDealService;
 import io.davlac.checkoutsystem.productdeal.service.dto.response.DiscountResponse;
 import io.davlac.checkoutsystem.productdeal.service.dto.response.ProductDealResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.util.List;
+import javax.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.Optional;
 
 import static io.davlac.checkoutsystem.basket.service.AbstractCalculationBasketProductService.calculateDealsTotalPrice;
-import static io.davlac.checkoutsystem.basket.service.AbstractCalculationBasketProductService.calculateProductPrice;
 
-@Service
-@RequiredArgsConstructor
-public class DiscountCalculationBasketProductService {
+public interface DiscountCalculationBasketProductService {
 
-    private final BasketProductMapper basketProductMapper;
-    private final ProductDealService productDealService;
+    static double applyDiscountIfExist(@NotNull final BasketProductDetailsResponse productDetails,
+                                       final double totalProductPrice) {
+        if (CollectionUtils.isEmpty(productDetails.getProductDeals())) {
+            return totalProductPrice;
+        }
 
-    public BasketProductDetailsResponse buildProductDetails(final BasketProduct basketProduct) {
-        Product product = basketProduct.getProduct();
-        List<ProductDealResponse> productDeals = productDealService.getAllByProductId(product.getId());
-        BasketProductDetailsResponse productDetails = basketProductMapper.toDetailsResponse(basketProduct, productDeals);
-
-        double totalProductPrice = calculateProductPrice(product.getPrice(), productDetails.getQuantity());
-        productDetails.setProductTotalPriceBeforeDiscounts(totalProductPrice);
-        productDetails.setProductTotalPriceAfterDiscount(
-                applyDiscountIfExist(product.getPrice(), totalProductPrice, basketProduct.getQuantity(), productDetails));
-
-        return productDetails;
-    }
-
-    private static double applyDiscountIfExist(final double productPrice,
-                                               final double totalProductPrice,
-                                               final int quantity,
-                                               final BasketProductDetailsResponse productDetails) {
         // a product should have 1 discount max
         Optional<DiscountResponse> productDiscount = productDetails.getProductDeals().stream()
                 .map(ProductDealResponse::getDiscount)
@@ -53,11 +31,11 @@ public class DiscountCalculationBasketProductService {
 
         DiscountResponse discount = productDiscount.get();
 
-        if (discount.getDiscountQuantityTrigger() > quantity) {
+        if (discount.getDiscountQuantityTrigger() > productDetails.getQuantity()) {
             return totalProductPrice;
         }
 
-        return calculateDiscount(productPrice, discount, quantity);
+        return calculateDiscount(productDetails.getProductPrice(), discount, productDetails.getQuantity());
     }
 
     private static double calculateDiscount(final double productPrice,

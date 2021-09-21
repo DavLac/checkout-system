@@ -1,6 +1,5 @@
 package io.davlac.checkoutsystem.context.productdeal;
 
-import io.davlac.checkoutsystem.product.controller.error.BadRequestException;
 import io.davlac.checkoutsystem.product.controller.error.NotFoundException;
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.service.ProductService;
@@ -24,7 +23,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -126,91 +124,6 @@ class ProductDealServiceTest {
         assertEquals(LAST_MODIFIED_DATE, bundleResponse.getLastModifiedDate());
 
         assertEquals(LAST_MODIFIED_DATE, response.getLastModifiedDate());
-    }
-
-    @Test
-    void create_withNoDiscount_shouldThrowBadRequest() {
-        CreateProductDealRequest request = CreateProductDealRequest.builder()
-                .withProductId(PRODUCT_ID)
-                .build();
-
-        try {
-            productDealService.create(request);
-        } catch (BadRequestException ex) {
-            assertEquals("Discount and bundles are empty or null", ex.getMessage());
-        }
-    }
-
-    @Test
-    void create_withSameProductAndBundleProduct_shouldThrowBadRequest() {
-        CreateProductDealRequest request = CreateProductDealRequest.builder()
-                .withProductId(PRODUCT_ID)
-                .withBundles(
-                        Set.of(
-                                BundleRequest.builder()
-                                        .withProductId(PRODUCT_ID)
-                                        .withDiscountPercentage(PERCENT_75)
-                                        .build()
-                        )
-                )
-                .build();
-
-        try {
-            productDealService.create(request);
-        } catch (BadRequestException ex) {
-            assertEquals("A bundle cannot contain the deal product", ex.getMessage());
-        }
-    }
-
-    @Test
-    void create_withAnotherBundle_shouldThrowBadRequest() {
-        CreateProductDealRequest request = CreateProductDealRequest.builder()
-                .withProductId(PRODUCT_ID)
-                .withBundles(
-                        Set.of(
-                                BundleRequest.builder()
-                                        .withProductId(PRODUCT_ID_2)
-                                        .withDiscountPercentage(PERCENT_75)
-                                        .build()
-                        )
-                )
-                .build();
-
-        when(productService.getEntityById(PRODUCT_ID)).thenReturn(product);
-        when(productDealRepository.findAllByProduct(product)).thenReturn(List.of(productDeal));
-        when(productDealMapper.toDto(productDeal)).thenReturn(productResponse);
-
-
-        try {
-            productDealService.create(request);
-        } catch (BadRequestException ex) {
-            assertEquals("Product deal can have only one bundle by product", ex.getMessage());
-        }
-    }
-
-    @Test
-    void create_withAnotherDiscount_shouldThrowBadRequest() {
-        CreateProductDealRequest request = CreateProductDealRequest.builder()
-                .withProductId(PRODUCT_ID)
-                .withDiscount(
-                        DiscountRequest.builder()
-                                .withDiscountPercentage(PERCENT_50)
-                                .withTotalDiscountedItems(TOTAL_DISCOUNTED_ITEMS)
-                                .withTotalFullPriceItems(TOTAL_FULL_PRICE_ITEMS)
-                                .build()
-                )
-                .build();
-
-        when(productService.getEntityById(PRODUCT_ID)).thenReturn(product);
-        when(productDealRepository.findAllByProduct(product)).thenReturn(List.of(productDeal));
-        when(productDealMapper.toDto(productDeal)).thenReturn(productResponse);
-
-
-        try {
-            productDealService.create(request);
-        } catch (BadRequestException ex) {
-            assertEquals("Product deal can have only one discount by product", ex.getMessage());
-        }
     }
 
     @Test

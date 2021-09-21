@@ -1,6 +1,5 @@
 package io.davlac.checkoutsystem.productdeal.service;
 
-import io.davlac.checkoutsystem.product.controller.error.BadRequestException;
 import io.davlac.checkoutsystem.product.controller.error.NotFoundException;
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.service.ProductService;
@@ -12,7 +11,6 @@ import io.davlac.checkoutsystem.productdeal.service.mapper.ProductDealMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -28,7 +26,6 @@ public class ProductDealService {
 
     @Transactional
     public ProductDealResponse create(@NotNull final CreateProductDealRequest request) {
-        checkProductDealRequest(request);
         ProductDeal productDeal = productDealMapper.toEntity(request);
         ProductDeal productDealSaved = productDealRepository.save(productDeal);
         return productDealMapper.toDto(productDealSaved);
@@ -48,28 +45,6 @@ public class ProductDealService {
         return productDeals.stream()
                 .map(productDealMapper::toDto)
                 .collect(Collectors.toList());
-    }
-
-    private void checkProductDealRequest(CreateProductDealRequest request) {
-        List<ProductDealResponse> productDeals = getAllByProductId(request.getProductId());
-        if (!CollectionUtils.isEmpty(request.getBundles()) && isProductDealsHasBundle(productDeals)) {
-            throw new BadRequestException("Product deal can have only one bundle by product");
-        }
-
-        // check discounts
-        if (request.getDiscount() != null && isProductDealsHasDiscount(productDeals)) {
-            throw new BadRequestException("Product deal can have only one discount by product");
-        }
-    }
-
-    private static boolean isProductDealsHasDiscount(List<ProductDealResponse> productDeals) {
-        return productDeals.stream()
-                .anyMatch(deal -> deal.getDiscount() != null);
-    }
-
-    private static boolean isProductDealsHasBundle(List<ProductDealResponse> productDeals) {
-        return productDeals.stream()
-                .anyMatch(deal -> !deal.getBundles().isEmpty());
     }
 
 }

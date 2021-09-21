@@ -8,8 +8,6 @@ import lombok.ToString;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 @Getter
 @ToString
@@ -50,10 +48,5 @@ public final class UpdateProductRequest {
         public UpdateProductRequest build() {
             return new UpdateProductRequest(this);
         }
-    }
-
-    public boolean isEmpty() {
-        return Stream.of(this.price, this.description)
-                .allMatch(Objects::isNull);
     }
 }

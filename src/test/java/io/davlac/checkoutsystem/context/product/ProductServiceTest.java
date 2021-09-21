@@ -1,13 +1,12 @@
 package io.davlac.checkoutsystem.context.product;
 
-import io.davlac.checkoutsystem.product.controller.error.BadRequestException;
 import io.davlac.checkoutsystem.product.controller.error.NotFoundException;
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.repository.ProductRepository;
 import io.davlac.checkoutsystem.product.service.ProductService;
 import io.davlac.checkoutsystem.product.service.dto.CreateProductRequest;
-import io.davlac.checkoutsystem.product.service.dto.UpdateProductRequest;
 import io.davlac.checkoutsystem.product.service.dto.ProductResponse;
+import io.davlac.checkoutsystem.product.service.dto.UpdateProductRequest;
 import io.davlac.checkoutsystem.product.service.mapper.ProductMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -166,18 +165,6 @@ class ProductServiceTest {
             productService.patchById(ID, request);
         } catch (NotFoundException ex) {
             assertEquals("Product not found", ex.getMessage());
-        }
-    }
-
-    @Test
-    void patchById_withEmptyRequest_shouldThrowBadRequest() {
-        UpdateProductRequest request = UpdateProductRequest.builder()
-                .build();
-
-        try {
-            productService.patchById(ID, request);
-        } catch (BadRequestException ex) {
-            assertEquals("Body is empty", ex.getMessage());
         }
     }
 }

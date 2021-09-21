@@ -1,5 +1,6 @@
 package io.davlac.checkoutsystem.productdeal.controller;
 
+import io.davlac.checkoutsystem.productdeal.controller.validator.DiscountAndBundleNotEmpty;
 import io.davlac.checkoutsystem.productdeal.service.ProductDealService;
 import io.davlac.checkoutsystem.productdeal.service.dto.request.CreateProductDealRequest;
 import io.davlac.checkoutsystem.productdeal.service.dto.response.ProductDealResponse;
@@ -35,7 +36,10 @@ public class ProductDealController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<ProductDealResponse> create(
-            @RequestBody @Valid CreateProductDealRequest request
+            @RequestBody
+            @Valid
+            @DiscountAndBundleNotEmpty
+                    CreateProductDealRequest request
     ) {
         ProductDealResponse response = productDealService.create(request);
         return ResponseEntity

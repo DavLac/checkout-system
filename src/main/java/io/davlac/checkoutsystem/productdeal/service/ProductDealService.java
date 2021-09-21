@@ -52,10 +52,6 @@ public class ProductDealService {
     }
 
     private void checkProductDealRequest(CreateProductDealRequest request) {
-        if (CollectionUtils.isEmpty(request.getBundles()) && request.getDiscount() == null) {
-            throw new BadRequestException("Discount and bundles are empty or null");
-        }
-
         // check if product exist
         productService.getEntityById(request.getProductId());
 

@@ -1,5 +1,6 @@
 package io.davlac.checkoutsystem.integration;
 
+import io.davlac.checkoutsystem.CheckoutSystemApplication;
 import io.davlac.checkoutsystem.basket.controller.BasketProductController;
 import io.davlac.checkoutsystem.basket.model.BasketProduct;
 import io.davlac.checkoutsystem.basket.repository.BasketProductRepository;
@@ -46,7 +47,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = BasketProductController.class)
+@SpringBootTest(classes = CheckoutSystemApplication.class)
 @AutoConfigureMockMvc
 @EnableWebMvc
 @Transactional

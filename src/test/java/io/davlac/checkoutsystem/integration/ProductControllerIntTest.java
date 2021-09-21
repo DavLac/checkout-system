@@ -1,6 +1,6 @@
 package io.davlac.checkoutsystem.integration;
 
-import io.davlac.checkoutsystem.product.controller.ProductController;
+import io.davlac.checkoutsystem.CheckoutSystemApplication;
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.repository.ProductRepository;
 import io.davlac.checkoutsystem.product.service.dto.CreateProductRequest;
@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ProductController.class)
+@SpringBootTest(classes = CheckoutSystemApplication.class)
 @AutoConfigureMockMvc
 @EnableWebMvc
 @ComponentScan("io.davlac.checkoutsystem")

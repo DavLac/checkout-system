@@ -1,5 +1,6 @@
 package io.davlac.checkoutsystem.integration;
 
+import io.davlac.checkoutsystem.CheckoutSystemApplication;
 import io.davlac.checkoutsystem.integration.repository.BundleRepository;
 import io.davlac.checkoutsystem.integration.repository.DiscountRepository;
 import io.davlac.checkoutsystem.integration.request.BundleRequestTest;
@@ -7,7 +8,6 @@ import io.davlac.checkoutsystem.integration.request.CreateProductDealRequestTest
 import io.davlac.checkoutsystem.integration.request.DiscountRequestTest;
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.repository.ProductRepository;
-import io.davlac.checkoutsystem.productdeal.controller.ProductDealController;
 import io.davlac.checkoutsystem.productdeal.model.Bundle;
 import io.davlac.checkoutsystem.productdeal.model.Discount;
 import io.davlac.checkoutsystem.productdeal.model.ProductDeal;
@@ -50,7 +50,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ProductDealController.class)
+@SpringBootTest(classes = CheckoutSystemApplication.class)
 @AutoConfigureMockMvc
 @EnableWebMvc
 @ComponentScan("io.davlac.checkoutsystem")
@@ -460,7 +460,7 @@ class ProductDealControllerIntTest {
     }
 
     @Test
-    void create_withNotExistingProduct_shouldThrowNotFound() throws Exception {
+    void create_withNotExistingProduct_shouldThrowBadRequest() throws Exception {
         CreateProductDealRequest request = CreateProductDealRequest.builder()
                 .withProductId(PRODUCT_ID)
                 .withBundles(
@@ -476,11 +476,11 @@ class ProductDealControllerIntTest {
         mockMvc.perform(post(PRODUCT_DEALS_URI)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(request)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void create_withNotExistingProductBundle_shouldThrowNotFound() throws Exception {
+    void create_withNotExistingProductBundle_shouldReturnBadRequest() throws Exception {
         CreateProductDealRequest request = CreateProductDealRequest.builder()
                 .withProductId(savedProduct.getId())
                 .withBundles(
@@ -496,7 +496,7 @@ class ProductDealControllerIntTest {
         mockMvc.perform(post(PRODUCT_DEALS_URI)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(request)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
     @Test

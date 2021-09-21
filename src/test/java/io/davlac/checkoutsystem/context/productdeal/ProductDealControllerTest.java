@@ -1,5 +1,7 @@
 package io.davlac.checkoutsystem.context.productdeal;
 
+import io.davlac.checkoutsystem.product.model.Product;
+import io.davlac.checkoutsystem.product.repository.ProductRepository;
 import io.davlac.checkoutsystem.productdeal.controller.ProductDealController;
 import io.davlac.checkoutsystem.productdeal.service.ProductDealService;
 import io.davlac.checkoutsystem.productdeal.service.dto.request.BundleRequest;
@@ -13,43 +15,47 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doNothing;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
 class ProductDealControllerTest {
 
     private static final Long ID = 123L;
     public static final long PRODUCT_ID = 123L;
 
-    @Mock
+    @MockBean
     private ProductDealService productDealService;
 
-    @InjectMocks
+    @MockBean
+    private ProductRepository productRepository;
+
+    @Autowired
     private ProductDealController productDealController;
 
+    @Autowired
     private Validator validator;
 
     ProductDealResponse productDealResponse = new ProductDealResponse();
 
     @BeforeEach
     public void setUp() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
-
         productDealResponse.setId(ID);
     }
 
@@ -57,9 +63,13 @@ class ProductDealControllerTest {
     void create_withGoodRequest_shouldReturnSavedProductDeal() {
         CreateProductDealRequest request = CreateProductDealRequest.builder()
                 .withProductId(PRODUCT_ID)
+                .withBundles(Set.of(BundleRequest.builder()
+                        .withProductId(PRODUCT_ID)
+                        .withDiscountPercentage(1).build()))
                 .build();
 
         when(productDealService.create(request)).thenReturn(productDealResponse);
+        when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.of(new Product()));
 
         ResponseEntity<ProductDealResponse> response = productDealController.create(request);
 
@@ -232,17 +242,15 @@ class ProductDealControllerTest {
     void create_withError_shouldFailValidation(String test,
                                                CreateProductDealRequest request,
                                                String errorMessage) {
+        when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.of(new Product()));
         Set<ConstraintViolation<CreateProductDealRequest>> violations = validator.validate(request);
-        assertEquals(1, violations.size());
-        assertEquals(errorMessage, violations.stream().findFirst().get().getMessage());
+        assertNotEquals(0, violations.size());
+        assertTrue(violations.stream().anyMatch(msg -> msg.getMessage().equals(errorMessage)));
     }
 
     @Test
     void deleteById_withExistingProductDeal_shouldDeleteProductDeal() {
-        doNothing().when(productDealService).deleteById(ID);
-
         ResponseEntity<Void> response = productDealController.deleteById(ID);
-
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 }

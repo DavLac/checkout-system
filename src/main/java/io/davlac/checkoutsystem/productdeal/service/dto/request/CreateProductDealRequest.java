@@ -2,6 +2,7 @@ package io.davlac.checkoutsystem.productdeal.service.dto.request;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.davlac.checkoutsystem.productdeal.controller.validator.ProductExists;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -15,6 +16,7 @@ import java.util.Set;
 public final class CreateProductDealRequest {
 
     @NotNull
+    @ProductExists
     private final Long productId;
 
     private final @Valid DiscountRequest discount;

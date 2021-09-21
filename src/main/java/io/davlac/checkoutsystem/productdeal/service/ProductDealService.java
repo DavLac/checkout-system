@@ -6,7 +6,6 @@ import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.service.ProductService;
 import io.davlac.checkoutsystem.productdeal.model.ProductDeal;
 import io.davlac.checkoutsystem.productdeal.repository.ProductDealRepository;
-import io.davlac.checkoutsystem.productdeal.service.dto.request.BundleRequest;
 import io.davlac.checkoutsystem.productdeal.service.dto.request.CreateProductDealRequest;
 import io.davlac.checkoutsystem.productdeal.service.dto.response.ProductDealResponse;
 import io.davlac.checkoutsystem.productdeal.service.mapper.ProductDealMapper;
@@ -52,19 +51,11 @@ public class ProductDealService {
     }
 
     private void checkProductDealRequest(CreateProductDealRequest request) {
-        // check if product exist
-        productService.getEntityById(request.getProductId());
-
         // check bundles
         if (!CollectionUtils.isEmpty(request.getBundles())) {
             if (isBundleContainsProductDeal(request)) {
                 throw new BadRequestException("A bundle cannot contain the deal product");
             }
-
-            // check if all bundle's product exist
-            request.getBundles().stream()
-                    .map(BundleRequest::getProductId)
-                    .forEach(productService::getEntityById);
         }
 
         List<ProductDealResponse> productDeals = getAllByProductId(request.getProductId());

@@ -38,7 +38,8 @@ import static org.mockito.Mockito.when;
 class ProductDealControllerTest {
 
     private static final Long ID = 123L;
-    public static final long PRODUCT_ID = 123L;
+    private static final long PRODUCT_ID = 123L;
+    private static final long PRODUCT_ID_2 = 456L;
 
     @MockBean
     private ProductDealService productDealService;
@@ -64,12 +65,13 @@ class ProductDealControllerTest {
         CreateProductDealRequest request = CreateProductDealRequest.builder()
                 .withProductId(PRODUCT_ID)
                 .withBundles(Set.of(BundleRequest.builder()
-                        .withProductId(PRODUCT_ID)
+                        .withProductId(PRODUCT_ID_2)
                         .withDiscountPercentage(1).build()))
                 .build();
 
         when(productDealService.create(request)).thenReturn(productDealResponse);
         when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.of(new Product()));
+        when(productRepository.findById(PRODUCT_ID_2)).thenReturn(Optional.of(new Product()));
 
         ResponseEntity<ProductDealResponse> response = productDealController.create(request);
 

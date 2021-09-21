@@ -390,6 +390,18 @@ class ProductDealControllerIntTest {
                 Arguments.of("Deal without discount and bundle",
                         CreateProductDealRequest.builder()
                                 .withProductId(PRODUCT_ID)
+                                .build()),
+                Arguments.of("Bundle product same than targeted product",
+                        CreateProductDealRequest.builder()
+                                .withProductId(PRODUCT_ID)
+                                .withBundles(
+                                        Set.of(
+                                                BundleRequest.builder()
+                                                        .withProductId(PRODUCT_ID)
+                                                        .withDiscountPercentage(101)
+                                                        .build()
+                                        )
+                                )
                                 .build())
         );
     }

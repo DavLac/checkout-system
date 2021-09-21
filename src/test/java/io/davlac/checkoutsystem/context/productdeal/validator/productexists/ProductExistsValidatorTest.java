@@ -1,4 +1,4 @@
-package io.davlac.checkoutsystem.context.productdeal.validator;
+package io.davlac.checkoutsystem.context.productdeal.validator.productexists;
 
 import io.davlac.checkoutsystem.product.model.Product;
 import io.davlac.checkoutsystem.product.repository.ProductRepository;

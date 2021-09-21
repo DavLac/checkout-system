@@ -51,13 +51,6 @@ public class ProductDealService {
     }
 
     private void checkProductDealRequest(CreateProductDealRequest request) {
-        // check bundles
-        if (!CollectionUtils.isEmpty(request.getBundles())) {
-            if (isBundleContainsProductDeal(request)) {
-                throw new BadRequestException("A bundle cannot contain the deal product");
-            }
-        }
-
         List<ProductDealResponse> productDeals = getAllByProductId(request.getProductId());
         if (!CollectionUtils.isEmpty(request.getBundles()) && isProductDealsHasBundle(productDeals)) {
             throw new BadRequestException("Product deal can have only one bundle by product");
@@ -77,11 +70,6 @@ public class ProductDealService {
     private static boolean isProductDealsHasBundle(List<ProductDealResponse> productDeals) {
         return productDeals.stream()
                 .anyMatch(deal -> !deal.getBundles().isEmpty());
-    }
-
-    private static boolean isBundleContainsProductDeal(CreateProductDealRequest request) {
-        return request.getBundles().stream()
-                .anyMatch(bundle -> bundle.getProductId().equals(request.getProductId()));
     }
 
 }

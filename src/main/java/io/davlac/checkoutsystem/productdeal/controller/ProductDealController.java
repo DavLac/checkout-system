@@ -1,5 +1,6 @@
 package io.davlac.checkoutsystem.productdeal.controller;
 
+import io.davlac.checkoutsystem.productdeal.controller.validator.BundleProductDifferentThanTargetProduct;
 import io.davlac.checkoutsystem.productdeal.controller.validator.DiscountAndBundleNotEmpty;
 import io.davlac.checkoutsystem.productdeal.service.ProductDealService;
 import io.davlac.checkoutsystem.productdeal.service.dto.request.CreateProductDealRequest;
@@ -39,6 +40,7 @@ public class ProductDealController {
             @RequestBody
             @Valid
             @DiscountAndBundleNotEmpty
+            @BundleProductDifferentThanTargetProduct
                     CreateProductDealRequest request
     ) {
         ProductDealResponse response = productDealService.create(request);

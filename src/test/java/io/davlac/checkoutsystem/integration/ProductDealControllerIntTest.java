@@ -512,6 +512,18 @@ class ProductDealControllerIntTest {
     }
 
     @Test
+    void create_withDiscountAndBundleEmpty_shouldThrowBadRequest() throws Exception {
+        CreateProductDealRequest request = CreateProductDealRequest.builder()
+                .withProductId(savedProduct.getId())
+                .build();
+
+        mockMvc.perform(post(PRODUCT_DEALS_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void create_withSameProductDealAndBundle_shouldThrowBadRequest() throws Exception {
         CreateProductDealRequest request = CreateProductDealRequest.builder()
                 .withProductId(savedProduct.getId())

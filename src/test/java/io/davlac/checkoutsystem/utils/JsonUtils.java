@@ -31,7 +31,7 @@ public class JsonUtils {
         }
     }
 
-    public Object deserializeResult(ResultActions resultActions, Class clazz)
+    public <T> T deserializeResult(ResultActions resultActions, Class<T> clazz)
             throws JsonProcessingException, UnsupportedEncodingException {
         MvcResult result = resultActions.andReturn();
         String contentAsString = result.getResponse().getContentAsString();

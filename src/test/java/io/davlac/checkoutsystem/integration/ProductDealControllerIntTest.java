@@ -203,8 +203,7 @@ class ProductDealControllerIntTest {
                 .content(asJsonString(request)))
                 .andExpect(status().isCreated());
 
-        ProductDealResponse response = (ProductDealResponse) jsonUtils
-                .deserializeResult(resultActions, ProductDealResponse.class);
+        ProductDealResponse response = jsonUtils.deserializeResult(resultActions, ProductDealResponse.class);
 
         assertNotNull(response.getId());
         assertNotNull(response.getLastModifiedDate());

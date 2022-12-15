@@ -244,8 +244,7 @@ class ProductControllerIntTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        ProductResponse response = (ProductResponse) jsonUtils
-                .deserializeResult(resultActions, ProductResponse.class);
+        ProductResponse response = jsonUtils.deserializeResult(resultActions, ProductResponse.class);
 
         assertEquals(savedProduct.getId(), response.getId());
         assertEquals(NAME, response.getName());
@@ -277,8 +276,7 @@ class ProductControllerIntTest {
                         .content(asJsonString(request)))
                 .andExpect(status().isOk());
 
-        ProductResponse response = (ProductResponse) jsonUtils
-                .deserializeResult(resultActions, ProductResponse.class);
+        ProductResponse response = jsonUtils.deserializeResult(resultActions, ProductResponse.class);
 
         assertEquals(savedProduct.getId(), response.getId());
         assertEquals(savedProduct.getName(), response.getName());
@@ -302,8 +300,7 @@ class ProductControllerIntTest {
                         .content(asJsonString(request)))
                 .andExpect(status().isOk());
 
-        ProductResponse response = (ProductResponse) jsonUtils
-                .deserializeResult(resultActions, ProductResponse.class);
+        ProductResponse response = jsonUtils.deserializeResult(resultActions, ProductResponse.class);
 
         assertEquals(savedProduct.getId(), response.getId());
         assertEquals(savedProduct.getName(), response.getName());
@@ -327,8 +324,7 @@ class ProductControllerIntTest {
                         .content(asJsonString(request)))
                 .andExpect(status().isOk());
 
-        ProductResponse response = (ProductResponse) jsonUtils
-                .deserializeResult(resultActions, ProductResponse.class);
+        ProductResponse response = jsonUtils.deserializeResult(resultActions, ProductResponse.class);
 
         assertEquals(savedProduct.getId(), response.getId());
         assertEquals(savedProduct.getName(), response.getName());

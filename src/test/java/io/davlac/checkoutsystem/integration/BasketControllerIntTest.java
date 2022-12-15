@@ -125,8 +125,7 @@ class BasketControllerIntTest {
                 .content(asJsonString(request)))
                 .andExpect(status().isOk());
 
-        BasketProductResponse response = (BasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, BasketProductResponse.class);
+        BasketProductResponse response = jsonUtils.deserializeResult(resultActions, BasketProductResponse.class);
 
         assertEquals(request.getProductId(), response.getProductId());
         assertEquals(request.getQuantity(), response.getQuantity());
@@ -155,8 +154,7 @@ class BasketControllerIntTest {
                 .content(asJsonString(request)))
                 .andExpect(status().isOk());
 
-        BasketProductResponse response = (BasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, BasketProductResponse.class);
+        BasketProductResponse response = jsonUtils.deserializeResult(resultActions, BasketProductResponse.class);
 
         assertEquals(request.getProductId(), response.getProductId());
         assertEquals(quantityBefore + 1, response.getQuantity());
@@ -186,8 +184,7 @@ class BasketControllerIntTest {
                 .content(asJsonString(request)))
                 .andExpect(status().isOk());
 
-        BasketProductResponse response = (BasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, BasketProductResponse.class);
+        BasketProductResponse response = jsonUtils.deserializeResult(resultActions, BasketProductResponse.class);
 
         assertEquals(request.getProductId(), response.getProductId());
         assertEquals(quantityBefore + 1, response.getQuantity());
@@ -266,8 +263,7 @@ class BasketControllerIntTest {
                         .param("quantity", String.valueOf(QUANTITY_10)))
                 .andExpect(status().isOk());
 
-        BasketProductResponse response = (BasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, BasketProductResponse.class);
+        BasketProductResponse response = jsonUtils.deserializeResult(resultActions, BasketProductResponse.class);
 
         assertEquals(basketProductSaved.getProductId(), response.getProductId());
         assertEquals(QUANTITY_10, response.getQuantity());
@@ -349,8 +345,7 @@ class BasketControllerIntTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+        TotalBasketProductResponse response = jsonUtils.deserializeResult(resultActions, TotalBasketProductResponse.class);
 
         assertEquals(PRICE * QUANTITY_5, response.getTotalPrice());
         assertEquals(1, response.getProductDetails().size());
@@ -371,8 +366,7 @@ class BasketControllerIntTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+        TotalBasketProductResponse response = jsonUtils.deserializeResult(resultActions, TotalBasketProductResponse.class);
 
         double product1Total = PRICE * QUANTITY_5;
         double product2Total = PRICE_2 * QUANTITY_2;
@@ -410,8 +404,7 @@ class BasketControllerIntTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+        TotalBasketProductResponse response = jsonUtils.deserializeResult(resultActions, TotalBasketProductResponse.class);
 
         double productTotal = PRICE_10 * QUANTITY_5;
         double productTotalDiscount = productTotal * (100 - PERCENT_70) / 100;
@@ -443,8 +436,7 @@ class BasketControllerIntTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+        TotalBasketProductResponse response = jsonUtils.deserializeResult(resultActions, TotalBasketProductResponse.class);
 
         double productTotal = PRICE_10 * QUANTITY_5;
         double productTotalDiscount = PRICE_10 * 3;
@@ -476,8 +468,7 @@ class BasketControllerIntTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+        TotalBasketProductResponse response = jsonUtils.deserializeResult(resultActions, TotalBasketProductResponse.class);
 
         double productTotal = PRICE_10 * QUANTITY_5;
         assertEquals(productTotal, response.getTotalPrice());
@@ -512,8 +503,7 @@ class BasketControllerIntTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+        TotalBasketProductResponse response = jsonUtils.deserializeResult(resultActions, TotalBasketProductResponse.class);
 
         double productTotal = PRICE_10;
         assertEquals(productTotal, response.getTotalPrice());
@@ -557,8 +547,7 @@ class BasketControllerIntTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+        TotalBasketProductResponse response = jsonUtils.deserializeResult(resultActions, TotalBasketProductResponse.class);
 
         // product1 full price *2 + product2 full price *3 + 50% *2
         double productTotal = PRICE_10 * QUANTITY_2 + PRICE_2 * 3 + (PRICE_2 * QUANTITY_2) / 2;
@@ -601,8 +590,7 @@ class BasketControllerIntTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+        TotalBasketProductResponse response = jsonUtils.deserializeResult(resultActions, TotalBasketProductResponse.class);
 
         double productTotal = PRICE_10 * QUANTITY_2;
         assertEquals(productTotal, response.getTotalPrice());
@@ -645,8 +633,7 @@ class BasketControllerIntTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+        TotalBasketProductResponse response = jsonUtils.deserializeResult(resultActions, TotalBasketProductResponse.class);
 
         // product1 full price + product2 50%
         double productTotal = PRICE_10 * QUANTITY_1 + PRICE_2 * QUANTITY_1 / 2;
@@ -699,8 +686,7 @@ class BasketControllerIntTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+        TotalBasketProductResponse response = jsonUtils.deserializeResult(resultActions, TotalBasketProductResponse.class);
 
         // product1 full price + product2 50%
         double productTotal = PRICE_10 * QUANTITY_1 + PRICE_2 * QUANTITY_1 / 2;
@@ -753,8 +739,7 @@ class BasketControllerIntTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+        TotalBasketProductResponse response = jsonUtils.deserializeResult(resultActions, TotalBasketProductResponse.class);
 
         // product1 full price + product2 50% + product3 25% (2)
         double productTotal = PRICE_10 * QUANTITY_2 +
@@ -795,8 +780,7 @@ class BasketControllerIntTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        TotalBasketProductResponse response = (TotalBasketProductResponse) jsonUtils
-                .deserializeResult(resultActions, TotalBasketProductResponse.class);
+        TotalBasketProductResponse response = jsonUtils.deserializeResult(resultActions, TotalBasketProductResponse.class);
 
         assertEquals(0, response.getTotalPrice());
         assertEquals(0, response.getProductDetails().size());

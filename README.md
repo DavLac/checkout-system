@@ -1,5 +1,5 @@
 # Checkout system
-
+Hello I'm David
 This application allows :
 - creating products,
 - applying deals and discounts on them,
